@@ -1,0 +1,21 @@
+Package: priceTools
+Type: Package
+Title: Tools for analyzing biodiversity-ecosystem function relationships
+Version: 0.0.0.9000
+Author: Colin T. Kremer
+Maintainer: Colin T. Kremer <colin.kremer@yale.edu>
+Description: Developed as part of the sCAFE working group activities, supported
+    by sDiv.
+Depends: R (>=3.2.4)
+License: MIT + file LICENSE
+LazyData: TRUE
+RoxygenNote: 5.0.1
+Imports: dplyr,
+    reshape2,
+    ggplot2,
+    gridExtra,
+    MASS,
+    vegan
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
