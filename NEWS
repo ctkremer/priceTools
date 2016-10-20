@@ -1,0 +1,21 @@
+
+
+# graphing functions edited by KBM to:
+# move legend to bottom of plots for better stacking (leap.zig)
+# change standardization=FALSE method (process.data)
+# plot absolute EF on x-axis instead of raw change (process.data and leap.zig)
+# remove gridlines from plots (leap.zig)
+# last updated 08-04-2016
+
+# CTK NOTE: move several of these graphing adjustments back out of pre-packaged function (can be added as additions to the ggplot2 object returned by the plotting functions)
+
+
+### CHANGE LOG - price.part
+
+#	- changing missing species convention. They should be represented by 0 abundance entries, rather than NA codes.
+
+#	1/19/15 - The above change may be problematic if function values of 0 are meaningful.... although it keeps the math tidy.
+
+#	11/17/15 - turned off 'break' command for occurrence of non-overlapping communities. And added an error message/verbosity flag.
+
+# 3/4/16 - added additional output columns tracking aggregations of price components, total function, and richness values
