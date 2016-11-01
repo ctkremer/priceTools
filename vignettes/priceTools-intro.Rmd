@@ -1,0 +1,110 @@
+---
+title: "Introduction to priceTools"
+author: "Colin T. Kremer"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to priceTools}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+***
+
+This vignette provides a short introduction to the Price equation applied to understanding how changes in the diversity and composition of communities lead to changes in ecosystem function (Fox & Kerr 2012). It also demonstrates how to use the tools developed in the priceTools package to easily perform Price equation based analyses of community data sets of varying levels of complexity.
+
+***
+
+# Getting Started
+
+
+```{r message=FALSE}
+# Direct vignette code to use the priceTools package. When ready for release, use the library command; during development, calling devtools::load_all() is suggested:
+# http://stackoverflow.com/questions/35727645/devtools-build-vignette-cant-find-functions
+
+#library(priceTools)
+devtools::load_all()
+```
+
+
+## Setting up data
+
+To apply the Price equation to partitioning ecosystem function, we need data on the identity and function of each species occuring in two communities, which we'll call X and Y. We can then use the function `price.part()` to obtain the components explaining change in function between communities. First, however, we need to make sure that our community data is in the right format.
+
+Load example biomass data supplied with the priceTools package:
+```{r}
+# Make sure this still works after releasing package/post-development
+price.data <- biomass
+```
+
+We can either load a data file that has already been formatted for `price.part()`, or we can load data in a format more typical of empirical data sets, and run that data through the function `data.setup()` to format it correctly. The desired final format has a row for each unique species that occurs in one or both communities. Columns include the species ID, the function of each species in X and Y, and three book-keeping columns that track whether each species appears in both X and Y, or X, or Y. Currently, species that do not appear in a community are listed as having 0 function in that community.
+
+*Method A:*
+
+One data set with three columns.
+
+* species name or ID.
+* function of species in X.
+* function of species in Y.
+
+```{r,warning=FALSE}
+head(price.data)
+
+comm <- data.setup(list(price.data))
+head(comm)
+```
+
+*Method B:*
+
+```{r,echo=FALSE}
+dataX <- price.data[price.data$biomassX != 0, c(1,2)]
+dataY <- price.data[price.data$biomassY != 0, c(1,3)]
+```
+
+Two data sets with two columns.
+
+* species name or ID.
+* function of species.
+
+```{r}
+head(dataX)
+head(dataY)
+
+comm <- data.setup(list(dataX,dataY))
+head(comm)
+```
+
+
+## Calculating Price equation partition
+
+After we have taken data from two communities, X and Y, and created a properly formatted data object (either by hand, or by using the `data.setup()` function), we can use the `price.part()` function to compute the price equation partition for these communities.
+
+```{r}
+price.part(comm)
+```
+
+Following Fox & Kerr 2012, the output gives us values for the Price equation partition.
+
+* SRE.L = species richness effect, loss.
+* SRE.G = species richness effect, gain
+* SCE.L = species composition effect, loss
+* SCE.G = species composition effect, gain
+* CDE = context dependent effect
+
+It also provides terms that quantify ecosystem change from the CAFE and BEF perspectives.
+
+* SL = SRE.L + SCE.L = 'Species loss effect', CAFE
+* SG = SRE.G + SCE.G = 'Species gain effect', CAFE
+* SR = SRE.L + SRE.G = 'Species richness effect', BEF
+* CE = SCE.L + SCE.G + CDE = 'Species composition effect', BEF
+
+And additional values.
+
+* x.func = Total ecosystem function in baseline X community
+* y.func = Total ecosystem function in comparison Y community
+* x.rich = Species richness in X community
+* y.rich = Species richness in Y community
+* c.rich = Number of species shared by X and Y communities
+
+***
+
