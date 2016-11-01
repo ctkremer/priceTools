@@ -11,7 +11,7 @@ require(gridExtra)
 ######################## Basic Tools ########################
 
 
-#' Logistic link function
+#' Logistic link function.
 #'
 #' @param x A number
 #' @return Transformed values on the probability scale
@@ -23,17 +23,20 @@ expit<-function(x){
 }
 
 
-#' Asymptotic 95% confidence interval
+#' Asymptotic 95 percent confidence interval.
+#'
+#' This function computes the upper or lower 95% CI based on an asymptotic 
+#' approximation and assumption of normality.
 #'
 #' @param x  A list of numeric values
 #' @param type Upper ("upr") or lower ("lwr") CI boundary?
 #' @return Confidence interval value
 #' @examples
 #' x<-runif(20)
-#' mean.CI(x,type="lwr")
-#' mean.CI(x,type="upr")
+#' meanCI(x,type="lwr")
+#' meanCI(x,type="upr")
 #' 
-mean.CI<-function(x,type){
+meanCI<-function(x,type){
 	
   if(type=="lwr"){
 	  res <- mean(x) - 1.96*(sqrt(var(x))/length(x))
@@ -47,7 +50,9 @@ mean.CI<-function(x,type){
 }
 
 
-#' Standard error
+#' Standard error.
+#'
+#' Short-cut for calculating the standard error of a vector of values
 #'
 #' @param x A list of numeric values
 #' @return Standard error
@@ -60,19 +65,54 @@ se<-function(x) sd(x)/length(x)
 
 ######################## Data Cleaning & Setup Functions ########################
 
-###### Take 2 separate community lists and create single data set ready for calculating the price partition.
 
-#' Data setup for Price Equation calculations
+### Goal, specify 1 or more ordered variable
+#   - reduce it to pre/post 0/1 categories, given one or more cut-points
+clean.time.vars<-function(x,col,cut.point){
+  
+  tmp<-x[,grepl(col,names(x))] > cut.point
+  tmp[,1]<-as.numeric(tmp[,1])
+  tmp[,2]<-as.numeric(tmp[,2])
+  tmp<-as.data.frame(tmp)
+  
+  x[,grepl(col,names(x))]<-tmp
+  return(x)
+}
+
+
+#' Data setup for Price Equation calculations.
 #'
 #' Take two separate community lists and create a single data set, which is ready
 #' for calculating the Price Equation partitions.
 #'
-#' @param input  A list of species names
+#' @param input  Data on the composition of a pair of communities. This can take on two different forms: 
+#'    (i) a single data frame, where the first column is 'species', a list of taxa names, and the 
+#'        following two columns list the function of each species in communities X and Y. Species absent 
+#'        from one community are given an entry of 0 function.
+#'    (ii) a list of two separate data frames, one for each community X and Y, each containing two 
+#'        columns, and the corresponding function of each species.
 #' @param aggregate A rule for aggregating multiple entries for the same species. 
-#' The default option is "sum"
-#' @return comm  A data frame containing columns:
+#' The default option is "sum", a secondary option is "mean"
+#' 
+#' @return A data frame of species identities and functions, appropriately formatted for running
+#'  price partition calculations.
+#'    \item{species}{A list of species names}
+#'    \item{func.X}{The function of each species in communityX}
+#'    \item{func.Y}{The function of each species in community Y}
+#'    \item{wvec}{An indicator variable equal to 1 when a species occurs in both X and Y}
+#'    \item{xvec}{An indicator variable equal to 1 when a species occurs in X}
+#'    \item{yvec}{An indicator variable equal to 1 when a species occurs in Y}
+#'    
 #' @examples 
-#' #data.setup()
+#' 
+#' # Method 1:
+#' data.setup(list(biomass))
+#' 
+#' # Method 2:
+#' comX <- biomass[biomass$biomassX!=0,c('species','biomassX')]
+#' comY <- biomass[biomass$biomassY!=0,c('species','biomassY')]
+#' 
+#' data.setup(list(comX,comY))
 #' 
 data.setup<-function(input,aggregate="sum"){
 
@@ -132,9 +172,86 @@ data.setup<-function(input,aggregate="sum"){
 }
 
 
-# write a function that merges pairs of grouping variable columns...
-# to run after price partitioning
-# NOTE: x must be a data object containing the grouping column(s) listed in gps
+#' Rough estimate of memory requirements of distance matrix
+#'
+#' Calculate the amount of memory needed to store a distance matrix, before calculating the
+#' distance matrix. This is a prudent way to prevent running out of RAM when calculating a
+#' distance matrix. (Code implemented from response on R help list).
+#'
+#' @param n This is the number of rows in the distance matrix
+#' 
+#' @return Estimated memory requirement in GB
+#' 
+#' @examples
+#' dist.mat.size(200)
+dist.mat.size<-function(n){
+  ((n*(n-1)/2)*8)/1024^3
+}
+
+
+
+
+#' Calculate Price component based distance matrix between community pairs.
+#' 
+#' The Price equation generates a vector of values reflecting a comparison between two 
+#' communities. This vector can be used to establish a distance between different pairs 
+#' of communities, compared with the Price equation. Across all pairwise combinations of
+#' community pairs, this produces a distance matrix, which can be used to perform multivariate
+#' tests on Price analyses.
+#' 
+#' @param x  A data frame, resulting from FUNCTION
+#' 
+#' @return This function returns a list of two distance matrices:
+#'  \item{dst5}{A distance matrix calculated based on the full 5-part Price partition}
+#'  \item{dst3}{A distance matrix calculated based on the 3-part sCAFE version of the Price partition}
+#' 
+#' @examples 
+#' 
+#' # write example
+#' 
+get.dist.mats<-function(x){
+  
+  # Check the estimated size of the requested distance matrix.
+  # If >1 GB, consult user before continuing.
+  size<-dist.mat.size(nrow(x))
+  yn<-"y"
+  if(size>1){
+    cat("\n","Caution! Distance matrix size exceeds 1 GB.","\n","Continue? y/n")
+    yn<-scan(n=1,what=character())
+  }
+  
+  if(yn=="n"){
+    print("get.dist.mats aborted")
+    return(NA)
+  }else{
+    # 5-part partition
+    dst5<-as.matrix(dist(x[,c('SRE.L','SRE.G','SCE.L','SCE.G','CDE')]))
+    
+    # for 3-part partition
+    dst3<-as.matrix(dist(x[,c('SL','SG','CDE')]))
+    
+    comp.data<-list(covars=x,dist5=dst5,dist3=dst3)
+    return(comp.data)
+  }
+}
+
+
+#' Merge pairs of grouping columns
+#' 
+#' Take a pair of columns, distinguished with suffix .x and .y, and merge them into a
+#' single column without suffixes. This is helpful for post-processing the output of
+#' pairwise price calculations.
+#' 
+#' @param x  A data frame
+#' @param gps A list of grouping column(s)
+#' @param drop Drop original, unpaired columns after grouping? TRUE/FALSE
+#' 
+#' @return This function returns a data frame
+#' 
+#' @examples 
+#' 
+#' # write example
+#' 
 group.columns<-function(x,gps,drop=F){
 
   for(i in 1:length(gps)){
@@ -159,199 +276,68 @@ group.columns<-function(x,gps,drop=F){
 }
 
 
-### Goal, specify 1 or more ordered variable
-#   - reduce it to pre/post 0/1 categories, given one or more cut-points
-clean.time.vars<-function(x,col,cut.point){
 
-  tmp<-x[,grepl(col,names(x))] > cut.point
-  tmp[,1]<-as.numeric(tmp[,1])
-  tmp[,2]<-as.numeric(tmp[,2])
-  tmp<-as.data.frame(tmp)
+######################## Price Partition Functions ########################
 
-  x[,grepl(col,names(x))]<-tmp
-  return(x)
-}
-
-
-
-# Crude estimate of distance matrix size: (stolen from R help list)
-#  Or simpler speaking, you need to calculate 365000 * (365000-1) / 2 =
-#  66612317500 distances and with 8 bytes each, hence you need 66612317500
-#* 8 = 532898540000 Bytes = 532898540000 / (1024)^3 GB ~= 496.3 Gb to
-#store it in memory.
-dist.mat.size<-function(n){
-  ((n*(n-1)/2)*8)/1024^3
-}
-
-### ADD: 2-part partition (BEF style)
-
-# Function for calculating 5 and 3-part Price partitions
-# given a properly formatted data frame x.
-get.dist.mats<-function(x){
-
-  # check estimated size of distance matrix, if >1 gb, consult user before continuing.
-  size<-dist.mat.size(nrow(x))
-  yn<-"y"
-  if(size>1){
-    cat("\n","Caution! Distance matrix size exceeds 1 GB.","\n","Continue? y/n")
-    yn<-scan(n=1,what=character())
-  }
-
-  if(yn=="n"){
-    print("get.dist.mats aborted")
-    return(NA)
-  }else{
-    # 5-part partition
-    dst5<-as.matrix(dist(x[,c('SRE.L','SRE.G','SCE.L','SCE.G','CDE')]))
-
-    # for 3-part partition
-    dst3<-as.matrix(dist(x[,c('SL','SG','CDE')]))
-
-    comp.data<-list(covars=x,dist5=dst5,dist3=dst3)
-    return(comp.data)
-  }
-}
-
-
-######################## Price Partition Function ########################
-
-
-### Input
-
-# Either the output of data.setup() OR
-# Community data set having the following columns:
-
-# species (being a numeric or text ID for a unique species)
-# func.x (a column of data on the function of each species in community X; 0 indicates no data due to a species not occuring in X)
-# func.y (same as above, but for species in community Y)
-# xvec (1 if species occurs in community X, otherwise 0)
-# yvec (1 if species occurs in community Y, otherwise 0)
-# wvec = xvec*yvec (or, 1 if species occurs in X and Y, otherwise 0)
-
-# there should be n rows in this data set, one for each unique species in the combined species list for communities X and Y.
-
-### Output
-#
-#	These are the basic components of the price partition
-#	- SRE.L,		species richness effect (loss of species)
-#	- SRE.G,		species richness effect (gain of species)
-#	- SCE.L,		species composition effect (loss of species)
-#	- SCE.G,		species composition effect (gain of species)
-#	- CDE,		context dependent effect
-#
-
-
-
-price.part<-function(comm,quiet=F){
-
-	# Combined species list
-	sps.list<-comm$species
-	sx<-sum(comm$xvec)		# number of species in x
-	sy<-sum(comm$yvec)		# number of species in y
-	sc<-sum(comm$wvec)		# number of species in both
-	if(sc<1 & quiet==F){
-		print('Caution! Communities share no species in common.')
-#		break
-	}
-
-	# Measures of ecosystem function
-	totx<-sum(comm$func.x)
-	toty<-sum(comm$func.y)
-
-	# Partition change in function
-	zbarx<-totx/sx						# average function per species in x
-	zbary<-toty/sy						# average function per species in y
-	wbarx<-mean(comm$wvec[comm$xvec==1])		# probability that species in x is also in y
-	wbary<-mean(comm$wvec[comm$yvec==1])		# probability that species in y is also in x
-
-	### Solve for components:
-
-	# Difference btwn shared diversity & x diversity, times average function of x
-	SRE.L<- (sc-sx)*zbarx
-
-	# Difference btwn diversity of y & shared diversity times average function of y
-	SRE.G<- (sy-sc)*zbary
-
-	# SCE.L reflects combined effects of both the non-random loss of species from x and the non-random retention of species in y.
-	SCE.L<- sum((comm$func.x[comm$xvec==1]-zbarx)*(comm$wvec[comm$xvec==1]-wbarx))
-
-	# if a species x' from x is lost in y, SCE.L will increase if x' is less productive on average, and SCE.L will decrease if x' is more productive than average.
-	# if a species x' from x is NOT lost in y, SCE.L will increase if x' is more productive on average, and SCE.L will decrease if x' is less productive than average.
-	# Overall, high/positive values of SCE.L mean that weak species were lost and good species were retained.
-	# Noteably, SCE.L will not be affected by new species that y gains relative to what is shared or lost.
-	# average species have little effect on the value of SCE.L.
-
-	# If either barely any or almost all species occur in common between communities x and y, then the few species that are kept (or lost) will have a particularly large influence on the value of SCE.L. Overall, SCE.L will probably be smaller in this case, and greatly affected by whether the species lost/gained are more or less productive.
-
-
-	SCE.G<- -sum((comm$func.y[comm$yvec==1]-zbary)*(comm$wvec[comm$yvec==1]-wbary))
-
-# SCE.G reflects combined effects of both the non-random gain of species by community y and the non-random retention of species from x.
-
-# a less productive than average species in y (-1) makes a negative contribution to SCE.G if it is NOT in community x, and a positive contribution to SCE.G if it is in community x.
-
-# a more productive than average species in y (+1) makes a negative contribution to SCE.G if it is in x, and a positive contribution to SCE.G if it does NOT occur in community x.
-
-# A positive SCE.G occurs when less productive than average members of y also occured in x, and more productive than average species in y do not occur in x
-
-
-	# Total change in function due to changes in function of sps shared by communities.
-	CDE<-sum(comm$func.y[comm$wvec==1]-comm$func.x[comm$wvec==1])
-
-	# additional diagnostic output:
-	SL<-SRE.L+SCE.L
-	SG<-SRE.G+SCE.G
-	SR<-SRE.L+SRE.G
-	CE<-SCE.L+SCE.G+CDE
-	x.func<-totx
-	y.func<-toty
-	x.rich<-sx
-	y.rich<-sy
-	c.rich<-sc
-
-	# structure output:
-	pp<-c(SRE.L,SRE.G,SCE.L,SCE.G,CDE,SL,SG,SR,CE,x.func,y.func,x.rich,y.rich,c.rich)
-	names(pp)<-c("SRE.L","SRE.G","SCE.L","SCE.G","CDE",
-	             "SL","SG","SR","CE","x.func","y.func","x.rich","y.rich","c.rich")
-
-	return(pp)
-}
-
-
-### Try to intuit and explain the SCE.L and SCE.G terms:
-
-# SCE.L:
-
-#	Mathematically, consider the sum of:
-#	(biomass of species in x MINUS mean biomass of all x species)
-# 	* (whether or not particular species in x also occurs in y MINUS probability a generic species x occurs in y)
-
-# Basically, determine how important particular species x' is in community x and weight it by how unexpected the presence of x' in y is. Then add up all of these comparisons across all x' in x.
-# Or, take a measure of how good a particular species is, and how likely it is to be shared between communities.
-
-# All possible contributions of a species:
-# a less productive than average species in x (-1) makes a positive contribution to SCE.L if it is NOT in community y, and a negative contribution to SCE.L if it does occur in community y.
-# a more productive than average species in x (+1) makes a positive contribution to SCE.L if it occurs in y, and a negative contribution to SCE.L if it does not occur.
-
-# If SCE.L is positive as a whole, then community y must have 'lost' species in x that underperform and 'gained' species from x that overperformed.
-
-
-# A positive SCE.G occurs when less productive than average members of y also occured in x, and more productive than average species in y do not occur in x
-
-
-# SCE.G:
-
-# a less productive than average species in x (-1) makes a positive contribution to SCE.L if it is NOT in community y, and a negative contribution to SCE.L if it does occur in community y.
-# a more productive than average species in x (+1) makes a positive contribution to SCE.L if it occurs in y, and a negative contribution to SCE.L if it does not occur.
-# If SCE.L is positive as a whole, than community y must have 'lost' species in x that underperform and 'gained' species from x that overperformed.
-
-
-
-##################
-
-## Extended version of price partition function, that outputs contributions of individual species to each component.
-
-price.part2<-function(comm,quiet=F){
+#' Calculate the Price equation partition for two communities
+#'
+#' Take a (formatted) list of species and functions for two communities, and calculate
+#' the Price equation partition comparing the communities.
+#'
+#' Extra thoughts on how the interpret the Price equation partitions, which may get relocated into a vignette. 
+#' 
+#' Comments on SCE.L. If a species x' from x is lost in y, SCE.L will increase if x' 
+#' is less productive on average, and SCE.L will decrease if x' is more productive 
+#' than average. If a species x' from x is NOT lost in y, SCE.L will increase if x' 
+#' is more productive on average, and SCE.L will decrease if x' is less productive 
+#' than average. Overall, high/positive values of SCE.L mean that weak species were 
+#' lost and good species were retained. Noteably, SCE.L will not be affected by new
+#' species that y gains relative to what is shared or lost. Average species have 
+#' little effect on the value of SCE.L. If either barely any or almost all species 
+#' occur in common between communities x and y, then the few species that are kept 
+#' (or lost) will have a particularly large influence on the value of SCE.L. Overall, 
+#' SCE.L will probably be smaller in this case, and greatly affected by whether the
+#' species lost/gained are more or less productive.
+#' 
+#' Comments on SCE.G. A less productive than average species in y (-1) makes a negative
+#' contribution to SCE.G if it is NOT in community x, and a positive contribution to 
+#' SCE.G if it is in community x. A more productive than average species in y (+1) 
+#' makes a negative contribution to SCE.G if it is in x, and a positive contribution 
+#' to SCE.G if it does NOT occur in community x. A positive SCE.G occurs when less
+#' productive than average members of y also occured in x, and more productive than
+#' average species in y do not occur in x.
+#'
+#' @param comm  A data frame formatted according to the \code{\link{data.setup()}}
+#'  function, or if formatting independently, a data frame with the following columns.
+#' 
+#' @param quiet Silence error messages? TRUE/FALSE
+#' 
+#' @param sps.level Provide species-level contributions to 5 Price components? TRUE/FALSE
+#' 
+#' @return If \code{sps.level=FALSE}, a data frame of Price equation components.
+#'    \item{SRE.L}{species richness effect (loss of species)}
+#'    \item{SRE.G}{species richness effect (gain of species)}
+#'    \item{SCE.L}{species composition effect (loss of species)}
+#'    \item{SCE.G}{species composition effect (gain of species)}
+#'    \item{CDE}{context dependent effect}
+#'    \item{SL}{sum of SRE.L and SCE.L}
+#'    \item{SG}{sum of SRE.G and SCE.G}
+#'    \item{SR}{sum of SRE.L and SRE.G}
+#'    \item{CE}{sum of SCE.G, SCE.L, and CDE}
+#'    \item{x.func}{Total function in community X}
+#'    \item{y.func}{Total function in community Y}
+#'    \item{x.rich}{Number of species in community X}
+#'    \item{y.rich}{Number of species in community Y}
+#'    \item{c.rich}{Number of shared species between X and Y}
+#'
+#' @return If \code{sps.level=TRUE}, a list containing the above information in the first slot, and a data frame of individual species' contributions to each Price component in the second slot.
+#'        
+#' @examples 
+#' 
+#' formatted.data<-data.setup(list(biomass))
+#' price.part(formatted.data) 
+#' 
+price.part<-function(comm,quiet=F,sps.level=F){
 
   # Combined species list
   sps.list<-comm$species
@@ -375,38 +361,27 @@ price.part2<-function(comm,quiet=F){
 
   ### Solve for components:
 
-  # Difference btwn shared diversity & x diversity, times average function of x
+  # Difference between shared diversity & x diversity, times average function of x
   SRE.L.list <- ((sc-sx)/sx)*comm$func.x
   SRE.L.list<-data.frame(species=comm$species,SRE.L.list)
   SRE.L<-sum(SRE.L.list[,2])
 
-  # Difference btwn diversity of y & shared diversity times average function of y
+  # Difference between diversity of y & shared diversity times average function of y
   SRE.G.list <- ((sy-sc)/sy)*comm$func.y
   SRE.G.list<-data.frame(species=comm$species,SRE.G.list)
   SRE.G<-sum(SRE.G.list[,2])
 
-  # SCE.L reflects combined effects of both the non-random loss of species from x and the non-random retention of species in y.
+  # SCE.L computation
   SCE.L.list <- (comm$func.x[comm$xvec==1]-zbarx)*(comm$wvec[comm$xvec==1]-wbarx)
   SCE.L.list<- data.frame(species=comm$species[comm$xvec==1],SCE.L.list)
   SCE.L <- sum(SCE.L.list[,2])
 
-  # if a species x' from x is lost in y, SCE.L will increase if x' is less productive on average, and SCE.L will decrease if x' is more productive than average.
-  # if a species x' from x is NOT lost in y, SCE.L will increase if x' is more productive on average, and SCE.L will decrease if x' is less productive than average.
-  # Overall, high/positive values of SCE.L mean that weak species were lost and good species were retained.
-  # Noteably, SCE.L will not be affected by new species that y gains relative to what is shared or lost.
-  # average species have little effect on the value of SCE.L.
-
-  # If either barely any or almost all species occur in common between communities x and y, then the few species that are kept (or lost) will have a particularly large influence on the value of SCE.L. Overall, SCE.L will probably be smaller in this case, and greatly affected by whether the species lost/gained are more or less productive.
+  # SCE.G computation
   SCE.G.list <- -1*(comm$func.y[comm$yvec==1]-zbary)*(comm$wvec[comm$yvec==1]-wbary)
   SCE.G.list<- data.frame(species=comm$species[comm$yvec==1],SCE.G.list)
   SCE.G<- sum(SCE.G.list[,2])
 
-  # SCE.G reflects combined effects of both the non-random gain of species by community y and the non-random retention of species from x.
-  # a less productive than average species in y (-1) makes a negative contribution to SCE.G if it is NOT in community x, and a positive contribution to SCE.G if it is in community x.
-  # a more productive than average species in y (+1) makes a negative contribution to SCE.G if it is in x, and a positive contribution to SCE.G if it does NOT occur in community x.
-  # A positive SCE.G occurs when less productive than average members of y also occured in x, and more productive than average species in y do not occur in x
-
-  # Total change in function due to changes in function of sps shared by communities.
+  # Total change in function due to changes in function of species shared by communities.
   CDE.list <- comm$func.y[comm$wvec==1]-comm$func.x[comm$wvec==1]
   CDE.list <- data.frame(species=comm$species[comm$wvec==1],CDE.list)
   CDE<-sum(CDE.list[,2])
@@ -416,10 +391,29 @@ price.part2<-function(comm,quiet=F){
   pp.list<-merge(pp.list,SCE.L.list,all.x = T)
   pp.list<-merge(pp.list,SCE.G.list,all.x = T)
   pp.list<-merge(pp.list,CDE.list,all.x = T)
-  pp<-c(SRE.L,SRE.G,SCE.L,SCE.G,CDE)
-  names(pp)<-c("SRE.L","SRE.G","SCE.L","SCE.G","CDE")
-
-  return(list(pp,pp.list))
+  
+  # additional diagnostic output:
+  SL<-SRE.L+SCE.L
+  SG<-SRE.G+SCE.G
+  SR<-SRE.L+SRE.G
+  CE<-SCE.L+SCE.G+CDE
+  x.func<-totx
+  y.func<-toty
+  x.rich<-sx
+  y.rich<-sy
+  c.rich<-sc
+  
+  # structure output:
+  pp<-c(SRE.L,SRE.G,SCE.L,SCE.G,CDE,SL,SG,SR,CE,x.func,y.func,x.rich,y.rich,c.rich)
+  names(pp)<-c("SRE.L","SRE.G","SCE.L","SCE.G","CDE",
+               "SL","SG","SR","CE","x.func","y.func","x.rich","y.rich","c.rich")
+  if(sps.level){
+    res<-list(pp,pp.list)
+  }else{
+    res<-pp
+  }
+  
+  return(res)
 }
 
 
@@ -484,7 +478,7 @@ price.part.single<-function(sps,func,commX){
 }
 
 
-###############
+###############  Jaccard Functions ##################
 
 
 ### The next 3 functions support automated calculations of Jaccard similarity for
