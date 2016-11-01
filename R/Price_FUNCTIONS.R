@@ -43,6 +43,7 @@ expit<-function(x){
 #' meanCI(x,type="lwr")
 #' meanCI(x,type="upr")
 #' 
+#' @export
 meanCI<-function(x,type){
 	
   if(type=="lwr"){
@@ -66,6 +67,8 @@ meanCI<-function(x,type){
 #' @examples
 #' x<-runif(29)
 #' se(x)
+#' 
+#' @export
 se<-function(x) sd(x)/length(x)
 
 
@@ -122,6 +125,7 @@ clean.time.vars<-function(x,col,cut.point){
 #' data.setup(list(comX,comY))
 #' 
 #' @import dplyr
+#' @export
 data.setup<-function(input,aggregate="sum"){
 
   if(length(input)==1){
@@ -200,6 +204,8 @@ data.setup<-function(input,aggregate="sum"){
 #' 
 #' @examples
 #' dist.mat.size(200)
+#' 
+#' @export
 dist.mat.size<-function(n){
   ((n*(n-1)/2)*8)/1024^3
 }
@@ -225,6 +231,7 @@ dist.mat.size<-function(n){
 #' 
 #' # write example
 #' 
+#' @export
 get.dist.mats<-function(x){
   
   # Check the estimated size of the requested distance matrix.
@@ -268,6 +275,7 @@ get.dist.mats<-function(x){
 #' 
 #' # write example
 #' 
+#' @export
 group.columns<-function(x,gps,drop=F){
 
   for(i in 1:length(gps)){
@@ -353,6 +361,7 @@ group.columns<-function(x,gps,drop=F){
 #' formatted.data<-data.setup(list(biomass))
 #' price.part(formatted.data) 
 #' 
+#' @export
 price.part<-function(comm,quiet=F,sps.level=F){
 
   # Combined species list
@@ -530,6 +539,7 @@ price.part.column<-function(sps,func,dat){
 #' 
 #' # write example
 #' 
+#' @export
 pairwise.price<-function(x,species='Species',func='Function'){
   gps <- groups(x)  # extract grouping variables
 

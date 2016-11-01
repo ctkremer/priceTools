@@ -18,5 +18,6 @@ Short-cut for calculating the standard error of a vector of values
 \examples{
 x<-runif(29)
 se(x)
+
 }
 

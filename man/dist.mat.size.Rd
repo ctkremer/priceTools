@@ -19,5 +19,6 @@ distance matrix. (Code implemented from response on R help list).
 }
 \examples{
 dist.mat.size(200)
+
 }
 
