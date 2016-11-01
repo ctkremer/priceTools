@@ -29,10 +29,15 @@ expit<-function(x){
 #' approximation and assumption of normality.
 #'
 #' @param x  A list of numeric values
-#' @param type Upper ("upr") or lower ("lwr") CI boundary?
+#' 
+#' @param type Upper ("upr") or lower ("lwr") CI boundary
+#' 
 #' @return Confidence interval value
+#' 
 #' @examples
+#' 
 #' x<-runif(20)
+#' 
 #' meanCI(x,type="lwr")
 #' meanCI(x,type="upr")
 #' 

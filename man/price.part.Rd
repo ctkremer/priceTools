@@ -4,23 +4,18 @@
 \alias{price.part}
 \title{Calculate the Price equation partition for two communities}
 \usage{
-price.part(comm, quiet = F)
+price.part(comm, quiet = F, sps.level = F)
 }
 \arguments{
-\item{comm}{A data frame formatted according to the `data.setup()` function, or 
-             if formatting independently, a data frame with the following columns.
-
-   \item{species}{species names} 
-   \item{func.x}{function of species in X}
-   \item{func.y}{function of species in Y}
-   \item{xvec}{present in X? (1 = yes, 0 = no)} 
-   \item{yvec}{present in Y? (1 = yes, 0 = no)} 
-   \item{wvec}{present in X and Y? (1 = yes, 0 = no)}}
+\item{comm}{A data frame formatted according to the \code{\link{data.setup()}}
+function, or if formatting independently, a data frame with the following columns.}
 
 \item{quiet}{Silence error messages? TRUE/FALSE}
+
+\item{sps.level}{Provide species-level contributions to 5 Price components? TRUE/FALSE}
 }
 \value{
-A data frame of Price equation components.
+If \code{sps.level=FALSE}, a data frame of Price equation components.
    \item{SRE.L}{species richness effect (loss of species)}
    \item{SRE.G}{species richness effect (gain of species)}
    \item{SCE.L}{species composition effect (loss of species)}
@@ -35,6 +30,8 @@ A data frame of Price equation components.
    \item{x.rich}{Number of species in community X}
    \item{y.rich}{Number of species in community Y}
    \item{c.rich}{Number of shared species between X and Y}
+
+If \code{sps.level=TRUE}, a list containing the above information in the first slot, and a data frame of individual species' contributions to each Price component in the second slot.
 }
 \description{
 Take a (formatted) list of species and functions for two communities, and calculate
@@ -62,7 +59,7 @@ SCE.G if it is in community x. A more productive than average species in y (+1)
 makes a negative contribution to SCE.G if it is in x, and a positive contribution 
 to SCE.G if it does NOT occur in community x. A positive SCE.G occurs when less
 productive than average members of y also occured in x, and more productive than
-average species in y do not occur in x
+average species in y do not occur in x.
 }
 \examples{
 

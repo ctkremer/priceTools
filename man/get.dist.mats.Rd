@@ -23,7 +23,7 @@ tests on Price analyses.
 }
 \examples{
 
-# writeexample
+# write example
 
 }
 
