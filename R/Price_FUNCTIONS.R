@@ -127,21 +127,23 @@ data.setup<-function(input,aggregate="sum"){
   if(length(input)==1){
     comm<-input[[1]]
     names(comm)<-c('species','func.x','func.y')
-
+    
     # add together multiple entries for the same species by community X and Y
     switch(aggregate,
            sum = {comm <- comm %>% group_by(species) %>%
-                              summarize(func.x=sum(func.x),func.y=sum(func.y))},
+             summarize(func.x=sum(func.x), func.y=sum(func.y))},
            mean = {comm <- comm %>% group_by(species) %>%
-                              summarize(func.x=mean(func.x),func.y=mean(func.y))}
-           )
-
+             summarize(func.x=mean(func.x), func.y=mean(func.y))}
+    )
+    
     # Flag species that occur in common between communities x and y
-    comm$wvec<-ifelse(comm[,2]>0&comm[,3]>0,1,0)  # species occurs in x and y
-    comm$xvec<-ifelse(comm[,2]>0,1,0)  		# species occurs in x
-    comm$yvec<-ifelse(comm[,3]>0,1,0)			# species occurs in y
-    comm<-comm[order(comm$xvec,comm$yvec,decreasing=T),]
-	for(i in 1:ncol(comm)){
+    comm$wvec <- ifelse(comm[,2] > 0 & comm[,3] > 0, 1, 0)  # species occurs in x and y
+    comm$xvec <- ifelse(comm[,2] > 0, 1, 0)  		# species occurs in x
+    comm$yvec <- ifelse(comm[,3] > 0, 1, 0)			# species occurs in y
+    comm <- comm[order(comm$xvec, comm$yvec, decreasing=T),]
+    comm <- data.frame(comm)
+    
+    for(i in 2:ncol(comm)){
       comm[,i]<-ifelse(is.na(comm[,i]),0,comm[,i])
     }
   }
