@@ -6,7 +6,7 @@ Author: Colin T. Kremer
 Maintainer: Colin T. Kremer <colin.kremer@yale.edu>
 Description: Developed as part of the sCAFE working group activities, supported
     by sDiv.
-Depends: R (>= 3.2.4)
+Depends: R (>= 3.2.4), dplyr (>= 0.5.0)
 License: MIT + file LICENSE
 LazyData: TRUE
 RoxygenNote: 5.0.1
