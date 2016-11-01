@@ -163,7 +163,7 @@ data.setup<-function(input,aggregate="sum"){
     comm$yvec<-ifelse(comm$func.y>0,1,0)			# species occurs in y
     comm<-comm[order(comm$xvec,comm$yvec,decreasing=T),]
 
-    for(i in 1:ncol(comm)){
+    for(i in 2:ncol(comm)){
       comm[,i]<-ifelse(is.na(comm[,i]),0,comm[,i])
     }
   }
