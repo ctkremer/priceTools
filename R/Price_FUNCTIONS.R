@@ -340,11 +340,11 @@ group.columns<-function(x,gps,drop=F){
 price.part<-function(comm,quiet=F,sps.level=F){
 
   # Combined species list
-  sps.list<-comm$species
-  sx<-sum(comm$xvec)		# number of species in x
-  sy<-sum(comm$yvec)		# number of species in y
-  sc<-sum(comm$wvec)		# number of species in both
-  if(sc<1 & quiet==F){
+  sps.list <- comm$species
+  sx <- sum(comm$xvec)		# number of species in x
+  sy <- sum(comm$yvec)		# number of species in y
+  sc <- sum(comm$wvec)		# number of species in both
+  if(sc < 1 & quiet==F){
     print('Caution! Communities share no species in common.')
     #		break
   }
@@ -354,10 +354,10 @@ price.part<-function(comm,quiet=F,sps.level=F){
   toty<-sum(comm$func.y)
 
   # Partition change in function
-  zbarx<-totx/sx						# average function per species in x
-  zbary<-toty/sy						# average function per species in y
-  wbarx<-mean(comm$wvec[comm$xvec==1])		# probability that species in x is also in y
-  wbary<-mean(comm$wvec[comm$yvec==1])		# probability that species in y is also in x
+  zbarx <- totx/sx						# average function per species in x
+  zbary <- toty/sy						# average function per species in y
+  wbarx <- mean(comm$wvec[comm$xvec==1])		# probability that species in x is also in y
+  wbary <- mean(comm$wvec[comm$yvec==1])		# probability that species in y is also in x
 
   ### Solve for components:
 
@@ -368,12 +368,12 @@ price.part<-function(comm,quiet=F,sps.level=F){
 
   # Difference between diversity of y & shared diversity times average function of y
   SRE.G.list <- ((sy-sc)/sy)*comm$func.y
-  SRE.G.list<-data.frame(species=comm$species,SRE.G.list)
-  SRE.G<-sum(SRE.G.list[,2])
+  SRE.G.list <- data.frame(species=comm$species,SRE.G.list)
+  SRE.G <- sum(SRE.G.list[,2])
 
   # SCE.L computation
   SCE.L.list <- (comm$func.x[comm$xvec==1]-zbarx)*(comm$wvec[comm$xvec==1]-wbarx)
-  SCE.L.list<- data.frame(species=comm$species[comm$xvec==1],SCE.L.list)
+  SCE.L.list <- data.frame(species=comm$species[comm$xvec==1],SCE.L.list)
   SCE.L <- sum(SCE.L.list[,2])
 
   # SCE.G computation
@@ -384,33 +384,33 @@ price.part<-function(comm,quiet=F,sps.level=F){
   # Total change in function due to changes in function of species shared by communities.
   CDE.list <- comm$func.y[comm$wvec==1]-comm$func.x[comm$wvec==1]
   CDE.list <- data.frame(species=comm$species[comm$wvec==1],CDE.list)
-  CDE<-sum(CDE.list[,2])
+  CDE <- sum(CDE.list[,2])
 
   # combine pieces:
-  pp.list<-merge(SRE.G.list,SRE.L.list,all=T)
-  pp.list<-merge(pp.list,SCE.L.list,all.x = T)
-  pp.list<-merge(pp.list,SCE.G.list,all.x = T)
-  pp.list<-merge(pp.list,CDE.list,all.x = T)
+  pp.list <- merge(SRE.G.list,SRE.L.list,all=T)
+  pp.list <- merge(pp.list,SCE.L.list,all.x = T)
+  pp.list <- merge(pp.list,SCE.G.list,all.x = T)
+  pp.list <- merge(pp.list,CDE.list,all.x = T)
   
   # additional diagnostic output:
-  SL<-SRE.L+SCE.L
-  SG<-SRE.G+SCE.G
-  SR<-SRE.L+SRE.G
-  CE<-SCE.L+SCE.G+CDE
-  x.func<-totx
-  y.func<-toty
-  x.rich<-sx
-  y.rich<-sy
-  c.rich<-sc
+  SL <- SRE.L+SCE.L
+  SG <- SRE.G+SCE.G
+  SR <- SRE.L+SRE.G
+  CE <- SCE.L+SCE.G+CDE
+  x.func <- totx
+  y.func <- toty
+  x.rich <- sx
+  y.rich <- sy
+  c.rich <- sc
   
   # structure output:
-  pp<-c(SRE.L,SRE.G,SCE.L,SCE.G,CDE,SL,SG,SR,CE,x.func,y.func,x.rich,y.rich,c.rich)
-  names(pp)<-c("SRE.L","SRE.G","SCE.L","SCE.G","CDE",
-               "SL","SG","SR","CE","x.func","y.func","x.rich","y.rich","c.rich")
+  pp <- c(SRE.L,SRE.G,SCE.L,SCE.G,CDE,SL,SG,SR,CE,x.func,y.func,x.rich,y.rich,c.rich)
+  names(pp) <- c("SRE.L","SRE.G","SCE.L","SCE.G","CDE",
+                  "SL","SG","SR","CE","x.func","y.func","x.rich","y.rich","c.rich")
   if(sps.level){
-    res<-list(pp,pp.list)
+    res <- list(pp,pp.list)
   }else{
-    res<-pp
+    res <- pp
   }
   
   return(res)
@@ -422,60 +422,128 @@ price.part<-function(comm,quiet=F,sps.level=F){
 ### The next 3 functions support automated calculations of price components for
 # all pairwise community comparisons
 
-# Given a grouped data set with a species id column (specified as species), and
-# a function column (specified as func).
-# this function returns a set of price components for all pairwise combinations
-# of the lowest levels of the grouping variables.
-pairwise.price<-function(x,species='Species',func='Function'){
-  gps<-groups(x)  # extract grouping variables
-
-  # standardize user-specified species and function columns
-  names(x)[which(names(x)==species)]<-"species"
-  names(x)[which(names(x)==func)]<-"func"
-
-  if(!(length(gps)>=1)){
-    print("ERROR! data provided to pairwise.price must have at least one identified grouping variable")
-    break;
-  }else{
-    res<-x %>% do(price.part.column(.$species,.$func,dat=x))  # apply the price.part.column function across sets of ref. comms in x
-    names(res)[1:length(gps)]<-paste(names(res[1:length(gps)]),"x",sep=".") # distinguish grouping column names of refs. from comparison comms.
-
-    # drops self-comparisons:
-    res<-ungroup(res)
-    res<- res %>% filter((SRE.L!=0 | SRE.G!=0 | SCE.L!=0 | SCE.G!=0 | CDE!=0))
-
-    return(res)
-  }
-}
-
-# This function produces a data frame of all price component values generated by comparing a reference community
-# (with species list sps and function values func)
-# against all possible alternative communities in the grouped data set dat,
-price.part.column<-function(sps,func,dat){
-  gps<-groups(dat)      # snag the grouping variables
-  ngroups<-length(gps)  # how many are there?
-
-  tmpX<-data.frame(sps,func) # define reference community
-
-  # calculate all price comparisons against reference community.
-  options(dplyr.show_progress=F)  # turn off progress bar for low-level do() command
-  bob<-dat %>% group_by_(.dots=gps) %>% do(price.part.single(.$species,.$func,tmpX))  # calculate price components
-  options(dplyr.show_progress=T)  # turn progress bar back on (so it's visible for high-level do command)
-
-  # rename grouping variable columns to distinguish comparison communities.
-  names(bob)[1:ngroups]<-paste(names(bob[1:ngroups]),"y",sep=".")
-  bob
-}
 
 
-# Calculates the price components produced by comparing fixed community commX
-# with the community commY corresponding to the list of species and functions given by sps and func,
-# which can be flexibly/iteratively supplied by the dplyr do() command inside price.part.all()
+#' Low-level wrapper function for applying Price partition to a pair of communities
+#' 
+#' Given a list of species names and their functions, and a reference community,
+#' calculate the full set of Price partition components and return them. This is a 
+#' low-level function used inside of higher-level functions (ie, \code{price.part.all()})
+#' that automate the pairwise comparison of many communities.
+#' 
+#' @param sps  A vector of species' names
+#' @param func A numerical vector of species' functions
+#' @param commX A reference or 'baseline' community
+#' 
+#' @return This function returns a matrix with a single row, and columns consisting of 
+#' Price equation components.
+#' 
+#' @examples 
+#' 
+#' # write example
+#' 
 price.part.single<-function(sps,func,commX){
   commY<-data.frame(sps,func)         # set up comparison community
   ds<-data.setup(list(commX,commY))   # set up community lists for price calculations
   data.frame(t(price.part(ds,quiet=T)))   # run price calculation
 }
+
+
+#' Wrapper function for applying Price partition to list of communities
+#' 
+#' Given a list of species names and their ecosystem functions, this function generates
+#' a reference community, and then compares the reference community against a set of
+#' other communities (including species and their ecosystem function) supplied in a
+#' separate, grouped data frame. This is a low-level function that invokes 
+#' \code{price.part.single()} and is called by higher-level functions such as 
+#' \code{pairwise.price()}, which automates the pairwise comparison of many communities.
+#' 
+#' @param sps  A vector of species' names for the reference community
+#' @param func A numerical vector of species' ecosystem functions in the reference
+#'  community
+#' @param dat A grouped data frame of species' names and ecosystem functions, which 
+#'  must contain at least one grouping variable, as created by dplyr.
+#' 
+#' @return This function returns a data set of Price equation components, one full set
+#'  for each community (defined by the grouping variables) compared against the 
+#'  reference community
+#' 
+#' @examples 
+#' 
+#' # write example
+#'
+price.part.column<-function(sps,func,dat){
+  gps<-groups(dat)      # snag the grouping variable(s)
+  ngroups<-length(gps)  # how many are there?
+  
+  tmpX<-data.frame(sps,func) # define reference community
+  
+  # turn off progress bar for low-level do() command
+  options(dplyr.show_progress=F)  
+  
+  # calculate price components, given reference community
+  res <- dat %>% group_by_(.dots=gps) %>% do(price.part.single(.$species,.$func,tmpX))
+  
+  # turn progress bar back on (so it's visible for high-level do command)
+  options(dplyr.show_progress=T)  
+  
+  # rename grouping variable columns to distinguish comparison communities.
+  names(res)[1:ngroups] <- paste(names(res[1:ngroups]),"y",sep=".")
+  
+  return(res)
+}
+
+
+#' Calculate the Price equation partition for all possible community pairs
+#' 
+#' Given a grouped data set containing a species ID column and a column of species'
+#' ecosystem functions, this function returns a dataset of Price components that results
+#' from comparing all pairwise combinations of unique communities as defined by the 
+#' grouping variable(s).
+#' 
+#' @param x  A grouped data set, with grouping variables defined as in dplyr operations
+#' @param species The name of the column in \code{x} containing species ID's
+#' @param func The name of the column in \code{x} containing species' ecosystem function
+#' 
+#' @return This function returns a data set of the Price equation components 
+#'  corresponding to pairs of communities, identified by one or more grouping variables,
+#'  which are provided in pairs of columns with the format: groupvar1.x groupvar1.y, etc.
+#'  These can be conveniently re-combined using the \code{group.columns()} command.
+#' 
+#' @examples 
+#' 
+#' # write example
+#' 
+pairwise.price<-function(x,species='Species',func='Function'){
+  gps <- groups(x)  # extract grouping variables
+
+  # standardize user-specified species and function columns
+  names(x)[which(names(x)==species)] <- "species"
+  names(x)[which(names(x)==func)] <- "func"
+
+  if(!(length(gps) >= 1)){
+    print("ERROR! data provided to pairwise.price must have at least one identified
+          grouping variable")
+    break;
+  }else{
+    # apply the price.part.column function across sets of ref. comms in x
+    res <- x %>% do(price.part.column(.$species,.$func,dat=x))  
+    
+    # distinguish grouping column names of refs. from comparison comms.
+    names(res)[1:length(gps)] <- paste(names(res[1:length(gps)]),"x",sep=".") 
+
+    # drops self-comparisons:
+    res <- ungroup(res)
+    res <- res %>% filter((SRE.L!=0 | SRE.G!=0 | SCE.L!=0 | SCE.G!=0 | CDE!=0))
+
+    return(res)
+  }
+}
+
+
+
+
+
 
 
 ###############  Jaccard Functions ##################
