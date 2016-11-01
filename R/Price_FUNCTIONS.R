@@ -1,11 +1,13 @@
 ### Load required packages:
-require(reshape2)
-require(MASS)
-require(ggplot2)
-require(dplyr)
-require(vegan)
-require(gridExtra)
+#require(reshape2)
+#require(MASS)
+#require(ggplot2)
+#require(dplyr)
+#require(vegan)
+#require(gridExtra)
 
+# Handle the import of packages - this should force dplyr to be added to NAMESPACE
+# and be loaded when priceTools loads
 
 
 ######################## Basic Tools ########################
@@ -119,6 +121,7 @@ clean.time.vars<-function(x,col,cut.point){
 #' 
 #' data.setup(list(comX,comY))
 #' 
+#' @import dplyr
 data.setup<-function(input,aggregate="sum"){
 
   if(length(input)==1){
@@ -158,8 +161,14 @@ data.setup<-function(input,aggregate="sum"){
     # take this long-form data into wide-form, adding together repeated species entries.
 
     switch(aggregate,
-           sum = {comm<-dcast(tmp0,species~site,value.var="func",fun.aggregate = sum)},
-           mean = {comm<-dcast(tmp0,species~site,value.var="func",fun.aggregate = mean)}
+           sum = {
+             comm <- reshape2::dcast(tmp0,species~site,value.var="func",
+                                     fun.aggregate = sum)
+             },
+           mean = {
+             comm <- reshape2::dcast(tmp0,species~site,value.var="func",
+                                     fun.aggregate = mean)
+             }
     )
 
     # Flag species that occur in common between communities x and y
@@ -610,7 +619,7 @@ jaccard.single<-function(sps,func,commX){
   commY$ID<-'y'
   comm<-rbind(commX,commY)
 
-  comm<-dcast(comm,ID~sps,value.var='func',fill = 0)
+  comm<-reshape2::dcast(comm,ID~sps,value.var='func',fill = 0)
   vd<-vegdist(comm[,-1],"jaccard")
 
   return(data.frame(vd[[1]]))
