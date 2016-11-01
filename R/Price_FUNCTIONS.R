@@ -25,7 +25,7 @@ expit<-function(x){
 
 #' Asymptotic 95 percent confidence interval.
 #'
-#' This function computes the upper or lower 95% CI based on an asymptotic 
+#' This function computes the upper or lower 95 percent CI based on an asymptotic 
 #' approximation and assumption of normality.
 #'
 #' @param x  A list of numeric values
