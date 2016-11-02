@@ -15,7 +15,8 @@ Imports: dplyr,
     gridExtra,
     MASS,
     reshape2,
-    vegan
+    vegan,
+    tibble
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
