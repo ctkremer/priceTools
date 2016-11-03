@@ -356,7 +356,7 @@ leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
                                 levels=c("SL vector","SG vector","CDE vector","SR vector","CE vector"))
   }
   
-  ## Plot it:
+  # Plot it:
   if(add == TRUE){
     lzp <- old.plot
   }else{
@@ -368,44 +368,42 @@ leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
     lzp <- lzp + geom_point(data=tmp[[1]], aes(colour=variable, x=rich, y=value))
   }
   
-  # Add error bars.
-  # - in future, add jittering to third set of error bars?
+  # Add error bars
   if(error.bars){
     lzp <- lzp + geom_errorbarh(data=tmp[[2]], aes(xmin=x.qt.lw, xmax=x.qt.up, x=mean.x, y=mean.y),
-                          colour='gray', linetype=linetype) +
-                       geom_errorbar(data=tmp[[2]], aes(ymin=y.qt.lw, ymax=y.qt.up, x=mean.x, y=mean.y),
-                          width=1, colour='gray', linetype=linetype)
+                                colour='gray', linetype=linetype) +
+                 geom_errorbar(data=tmp[[2]], aes(ymin=y.qt.lw, ymax=y.qt.up, x=mean.x, y=mean.y),
+                               width=1, colour='gray', linetype=linetype)
   }
   
   # Add vectors
   if(vectors){
     lzp <- lzp + geom_path(data=tmp[[3]], aes(colour=variable, x=mean.x, y=mean.y),
-                          arrow=arrow(length=unit(0.2,"cm"), ends="first"), linetype=linetype)
+                           arrow=arrow(length=unit(0.2,"cm"), ends="first"), linetype=linetype)
   }
   
   if(all.vectors){
     lzp <- lzp + geom_path(data=tmp[[1]][tmp[[1]]$variable!='baseline',],
-                          aes(colour=variable,x=rich,y=value), linetype=linetype,
-                          arrow=arrow(length=unit(0.2,"cm"),ends="first"))
+                           aes(colour=variable,x=rich,y=value), linetype=linetype,
+                           arrow=arrow(length=unit(0.2,"cm"),ends="first"))
   }
   
-  cols<-c(alpha('#d95f02'),alpha('#1b9e77'),alpha('#7570b3'),alpha('#7fcdbb'),alpha('#e34a33'))
-  trcols<-c(alpha('#d95f02',0.1),alpha('#1b9e77',0.1),alpha('#7fcdbb',0.1),alpha('#7570b3',0.1))
+  cols <- c(alpha('#d95f02'),alpha('#1b9e77'),alpha('#7570b3'),alpha('#7fcdbb'),alpha('#e34a33'))
+  trcols <- c(alpha('#d95f02',0.1),alpha('#1b9e77',0.1),alpha('#7fcdbb',0.1),alpha('#7570b3',0.1))
   
   if(raw.points==FALSE & vectors==TRUE){
     lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=cols) +
-                       guides(colour=guide_legend(nrow=3, override.aes=list(shape=c(NA,NA,NA,NA,NA), 
-                                                           linetype=c(1,1,1,1,1))))
+                 guides(colour=guide_legend(nrow=3, override.aes=list(shape=c(NA,NA,NA,NA,NA), 
+                                                                      linetype=c(1,1,1,1,1))))
   }else{
-    lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, 
-                                                    values=c('black',trcols,cols)) +
-                       guides(colour=guide_legend(nrow=3, override.aes=list(
+    lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=c('black',trcols,cols)) +
+                 guides(colour=guide_legend(nrow=3, override.aes=list(
                                                                 shape=c(19,1,1,1,1,NA,NA,NA,NA,NA),
                                                                 linetype=c(0,0,0,0,0,1,1,1,1,1),
                                                                 colour=c('black',cols[1:4],cols))))
   }
   
-  # figure out plot ranges, based on data ranges:
+  # Figure out plot ranges, based on data ranges:
   xlim.D <- range(tmp[[1]]$rich)*c(0.98,1.02)
   ylim.D <- range(tmp[[1]]$value)*c(0.98,1.02)
   
@@ -425,30 +423,28 @@ leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
     ylim.outer <- ylim.inner <- ylim.D
   }
   
-  # adjust inner plotting range
+  # Adjust inner plotting range
   lzp <- lzp + coord_cartesian(xlim=xlim.inner, ylim=ylim.inner)
   
   # Select color and label options:
-  lzp<-lzp+theme_bw()+
-    scale_x_continuous("Species richness",limits=xlim.outer)
+  lzp <- lzp + theme_bw() + scale_x_continuous("Species richness", limits=xlim.outer)
   
-  if(loc.standardize==TRUE){
-    lzp<-lzp+scale_y_continuous("% change in EF vs. baseline",limits=ylim.outer)
+  if(loc.standardize == TRUE){
+    lzp <- lzp + scale_y_continuous("% change in EF vs. baseline", limits=ylim.outer)
   }else{
-    lzp<-lzp+scale_y_continuous("Ecosystem function",limits=ylim.outer)
+    lzp <- lzp + scale_y_continuous("Ecosystem function", limits=ylim.outer)
   }
   
-  if(legend==TRUE){
-    lzp<-lzp+theme(legend.position="bottom",legend.title=element_blank())
+  if(legend == TRUE){
+    lzp <- lzp + theme(legend.position="bottom", legend.title=element_blank())
   }
   
-  if(legend==FALSE){
-    lzp<-lzp+theme(legend.position="none")
+  if(legend == FALSE){
+    lzp <- lzp + theme(legend.position="none")
   }
   
-  lzp<-lzp+ggtitle(main)
+  lzp <- lzp + ggtitle(main)
   
-  #  print(lzp)
   return(lzp)
 }
 
@@ -480,110 +476,107 @@ leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
 #'
 #' @export
 #' @import ggplot2
-leap.zig.bef<-function(tmp,xlim=NA,ylim=NA,loc.standardize=TRUE,
-                       error.bars=FALSE,raw.points=TRUE,
-                       vectors=TRUE,all.vectors=FALSE,
-                       legend=TRUE,old.plot=NA,main="",linetype=1,add=FALSE){
+leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE,
+                       raw.points=TRUE, vectors=TRUE, all.vectors=FALSE,
+                       legend=TRUE, old.plot=NA, main="", linetype=1, add=FALSE){
 
-  # trim out un-needed factor levels
-  if(raw.points==FALSE & vectors==TRUE){
-    tmp[[3]]$variable<-factor(as.character(tmp[[3]]$variable),levels=c("SR vector","CE vector"))
+  # Trim out un-needed factor levels
+  if(raw.points == FALSE & vectors == TRUE){
+    tmp[[3]]$variable <- factor(as.character(tmp[[3]]$variable), levels=c("SR vector","CE vector"))
   }
   
-  ## Plot it:
-  if(add==TRUE){
-    lzp<-old.plot
+  # Plot it:
+  if(add == TRUE){
+    lzp <- old.plot
   }else{
-    lzp<-ggplot()
+    lzp <- ggplot()
   }
   
   # Add points
   if(raw.points){
-    lzp<-lzp+geom_point(data=tmp[[1]],aes(colour=variable,x=rich,y=value))
+    lzp <- lzp + geom_point(data=tmp[[1]], aes(colour=variable, x=rich, y=value))
   }
   
-  # Add error bars.
-  # - in future, add jittering to third set of error bars?
+  # Add error bars
   if(error.bars){
-    lzp<-lzp+geom_errorbarh(data=tmp[[2]],aes(xmin=x.qt.lw,xmax=x.qt.up,x=mean.x,y=mean.y),
-                          colour='gray',linetype=linetype)+
-      geom_errorbar(data=tmp[[2]],aes(ymin=y.qt.lw,ymax=y.qt.up,x=mean.x,y=mean.y),
-                    width=1,colour='gray',linetype=linetype)
+    lzp <- lzp + geom_errorbarh(data=tmp[[2]], aes(xmin=x.qt.lw, xmax=x.qt.up, x=mean.x, y=mean.y),
+                                colour='gray', linetype=linetype) +
+                 geom_errorbar(data=tmp[[2]], aes(ymin=y.qt.lw, ymax=y.qt.up, x=mean.x, y=mean.y),
+                               width=1, colour='gray', linetype=linetype)
   }
   
   # Add vectors
   if(vectors){
-    lzp<-lzp+geom_path(data=tmp[[3]],aes(colour=variable,x=mean.x,y=mean.y),
-                     arrow=arrow(length=unit(0.2,"cm"),ends="first"),linetype=linetype)
+    lzp <- lzp + geom_path(data=tmp[[3]], aes(colour=variable, x=mean.x, y=mean.y),
+                     arrow=arrow(length=unit(0.2,"cm"),ends="first"), linetype=linetype)
   }
   
   if(all.vectors){
-    lzp<-lzp+geom_path(data=tmp[[1]][tmp[[1]]$variable!='baseline',],
-                     aes(colour=variable,x=rich,y=value),
-                     arrow=arrow(length=unit(0.2,"cm"),ends="first"),linetype=linetype)
+    lzp <- lzp + geom_path(data=tmp[[1]][tmp[[1]]$variable!='baseline',],
+                           aes(colour=variable, x=rich, y=value),
+                           arrow=arrow(length=unit(0.2,"cm"),ends="first"), linetype=linetype)
   }
   
-  cols<-c(alpha('#7fcdbb'),alpha('#e34a33'))
-  trcols<-c(alpha('#7fcdbb',0.1),alpha('#e34a33',0.1))
+  cols <- c(alpha('#7fcdbb'),alpha('#e34a33'))
+  trcols <- c(alpha('#7fcdbb',0.1),alpha('#e34a33',0.1))
   
-  if(raw.points==FALSE & vectors==TRUE){
-    lzp<-lzp+scale_color_manual("Component\n",drop=FALSE,values=cols)+
-      guides(colour=guide_legend(nrow=3,override.aes=list(shape=c(NA,NA),linetype=c(1,1))))
+  if(raw.points == FALSE & vectors == TRUE){
+    lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=cols) +
+                 guides(colour=guide_legend(nrow=3, override.aes=list(shape=c(NA,NA),linetype=c(1,1))))
   }else{
-    lzp<-lzp+scale_color_manual("Component\n",drop=FALSE,values=c('black',trcols,cols))+
-      guides(colour=guide_legend(nrow=3,
-                                 override.aes=list(shape=c(19,1,1,NA,NA),
-                                                   linetype=c(0,0,0,1,1),
-                                                   colour=c('black',cols,cols))))
+    lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=c('black',trcols,cols)) +
+                 guides(colour=guide_legend(nrow=3, override.aes=list(shape=c(19,1,1,NA,NA),
+                                                                      linetype=c(0,0,0,1,1),
+                                                                      colour=c('black',cols,cols))))
   }
   
-  # figure out plot ranges, based on data ranges:
-  xlim.D<-range(tmp[[1]]$rich)*c(0.98,1.02)
-  ylim.D<-range(tmp[[1]]$value)*c(0.98,1.02)
+  # Figure out plot ranges, based on data ranges:
+  xlim.D <- range(tmp[[1]]$rich)*c(0.98,1.02)
+  ylim.D <- range(tmp[[1]]$value)*c(0.98,1.02)
   
-  # if user supplied xlim's
+  # If user supplied xlim's
   if(length(xlim)==2){
-    xlim.outer<-c(min(xlim.D[1],xlim[1]),max(xlim.D[2],xlim[2]))
-    xlim.inner<-xlim
+    xlim.outer <- c(min(xlim.D[1],xlim[1]), max(xlim.D[2],xlim[2]))
+    xlim.inner <- xlim
   }else{
-    xlim.outer<-xlim.inner<-xlim.D
+    xlim.outer <- xlim.inner <- xlim.D
   }
   
-  # if user supplied ylim's
-  if(length(ylim)==2){
-    ylim.outer<-c(min(ylim.D[1],ylim[1]),max(ylim.D[2],ylim[2]))
-    ylim.inner<-ylim
+  # If user supplied ylim's
+  if(length(ylim) == 2){
+    ylim.outer <- c(min(ylim.D[1],ylim[1]), max(ylim.D[2],ylim[2]))
+    ylim.inner <- ylim
   }else{
-    ylim.outer<-ylim.inner<-ylim.D
+    ylim.outer <- ylim.inner <- ylim.D
   }
   
-  # adjust inner plotting range
-  lzp<-lzp+coord_cartesian(xlim=xlim.inner,ylim=ylim.inner)
+  # Adjust inner plotting range
+  lzp <- lzp + coord_cartesian(xlim=xlim.inner, ylim=ylim.inner)
   
   # Select color and label options:
-  lzp<-lzp+theme_bw()+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank())+
-    scale_x_continuous("Species richness",limits=xlim.outer)
+  lzp <- lzp + theme_bw() + theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank()) +
+               scale_x_continuous("Species richness", limits=xlim.outer)
   
-  if(loc.standardize==TRUE){
-    lzp<-lzp+scale_y_continuous("% change in EF vs. baseline",limits=ylim.outer)+
-      geom_hline(yintercept=0,linetype=2)
+  if(loc.standardize == TRUE){
+    lzp <- lzp + scale_y_continuous("% change in EF vs. baseline", limits=ylim.outer) +
+                 geom_hline(yintercept=0, linetype=2)
   }else{
-    lzp<-lzp+scale_y_continuous("Ecosystem function",limits=ylim.outer)
+    lzp <- lzp + scale_y_continuous("Ecosystem function", limits=ylim.outer)
   }
   
-  if(legend==TRUE){
-    lzp<-lzp+theme(legend.position="bottom",legend.title=element_blank())
+  if(legend == TRUE){
+    lzp <- lzp + theme(legend.position="bottom", legend.title=element_blank())
   }
   
-  if(legend==FALSE){
-    lzp<-lzp+theme(legend.position="none")
+  if(legend == FALSE){
+    lzp <- lzp + theme(legend.position="none")
   }
   
-  lzp<-lzp+ggtitle(main)
+  lzp <- lzp + ggtitle(main)
   
-  #  print(lzp)
   return(lzp)
 }
+
 
 #' Plot changes in ecosystem function using CAFE components.
 #'
@@ -612,113 +605,105 @@ leap.zig.bef<-function(tmp,xlim=NA,ylim=NA,loc.standardize=TRUE,
 #'
 #' @export
 #' @import ggplot2
-leap.zig.cafe<-function(tmp,xlim=NA,ylim=NA,loc.standardize=TRUE,
-                        error.bars=FALSE,raw.points=TRUE,
-                        vectors=TRUE,all.vectors=FALSE,
-                        legend=TRUE,old.plot=NA,main="",linetype=1,add=FALSE){
-  
-  # With this kind of set up, could run process.data.cafe repeatedly,
-  # for different treatment combinations.
-  
-  # trim out un-needed factor levels
-  if(raw.points==FALSE & vectors==TRUE){
-    tmp[[3]]$variable<-factor(as.character(tmp[[3]]$variable),levels=c("SL vector","SG vector","CDE vector"))
+leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE,
+                        raw.points=TRUE, vectors=TRUE, all.vectors=FALSE,
+                        legend=TRUE, old.plot=NA, main="", linetype=1, add=FALSE){
+
+  # Trim out un-needed factor levels
+  if(raw.points == FALSE & vectors == TRUE){
+    tmp[[3]]$variable <- factor(as.character(tmp[[3]]$variable), levels=c("SL vector","SG vector",
+                                                                          "CDE vector"))
   }
   
-  ## Plot it:
-  if(add==TRUE){
-    lzp<-old.plot
+  # Plot it:
+  if(add == TRUE){
+    lzp <- old.plot
   }else{
-    lzp<-ggplot()
+    lzp <- ggplot()
   }
   
   # Add points
   if(raw.points){
-    lzp<-lzp+geom_point(data=tmp[[1]],aes(colour=variable,x=rich,y=value))
+    lzp <- lzp + geom_point(data=tmp[[1]], aes(colour=variable, x=rich, y=value))
   }
   
   # Add error bars.
-  # - in future, add jittering to third set of error bars?
   if(error.bars){
-    lzp<-lzp+geom_errorbarh(data=tmp[[2]],aes(xmin=x.qt.lw,xmax=x.qt.up,x=mean.x,y=mean.y),
-                          colour='gray',linetype=linetype)+
-      geom_errorbar(data=tmp[[2]],aes(ymin=y.qt.lw,ymax=y.qt.up,x=mean.x,y=mean.y),
-                    width=1,colour='gray',linetype=linetype)
+    lzp <- lzp + geom_errorbarh(data=tmp[[2]], aes(xmin=x.qt.lw, xmax=x.qt.up, x=mean.x, y=mean.y),
+                                colour='gray', linetype=linetype) +
+                 geom_errorbar(data=tmp[[2]], aes(ymin=y.qt.lw, ymax=y.qt.up, x=mean.x, y=mean.y),
+                               width=1, colour='gray', linetype=linetype)
   }
   
   # Add vectors
   if(vectors){
-    lzp<-lzp+geom_path(data=tmp[[3]],aes(colour=variable,x=mean.x,y=mean.y),
-                     arrow=arrow(length=unit(0.2,"cm"),ends="first"),linetype=linetype)
+    lzp <- lzp + geom_path(data=tmp[[3]], aes(colour=variable, x=mean.x, y=mean.y),
+                           arrow=arrow(length=unit(0.2,"cm"), ends="first"), linetype=linetype)
   }
-  
-  #print(head(tmp[[1]]))
-  
+
   if(all.vectors){
-    lzp<-lzp+geom_path(data=tmp[[1]],
-                     aes(colour=variable,x=rich,y=value,linetype=Plot),
-                     arrow=arrow(length=unit(0.2,"cm"),ends="first"))
+    lzp <- lzp + geom_path(data=tmp[[1]], aes(colour=variable, x=rich, y=value, linetype=Plot),
+                           arrow=arrow(length=unit(0.2,"cm"), ends="first"))
   }
   
-  cols<-c(alpha('#d95f02'),alpha('#1b9e77'),alpha('#7570b3'))
-  trcols<-c(alpha('#d95f02',0.1),alpha('#1b9e77',0.1),alpha('#7570b3',0.1))
+  cols <- c(alpha('#d95f02'),alpha('#1b9e77'),alpha('#7570b3'))
+  trcols <- c(alpha('#d95f02',0.1),alpha('#1b9e77',0.1),alpha('#7570b3',0.1))
   
   if(raw.points==FALSE & vectors==TRUE){
-    lzp<-lzp+scale_color_manual("Component\n",drop=FALSE,values=cols)+
-      guides(colour=guide_legend(nrow=3,override.aes=list(shape=c(NA,NA,NA),linetype=c(1,1,1))))
+    lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=cols) +
+                 guides(colour=guide_legend(nrow=3, override.aes=list(shape=c(NA,NA,NA),
+                                                                      linetype=c(1,1,1))))
   }else{
-    lzp<-lzp+scale_color_manual("Component\n",drop=FALSE,values=c('black',trcols,cols))+
-      guides(colour=guide_legend(nrow=3,
-                                 override.aes=list(shape=c(19,1,1,1,NA,NA,NA),
-                                                   linetype=c(0,0,0,0,1,1,1),
-                                                   colour=c('black',cols,cols))))
+    lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=c('black',trcols,cols))+
+                 guides(colour=guide_legend(nrow=3, override.aes=list(shape=c(19,1,1,1,NA,NA,NA),
+                                                                     linetype=c(0,0,0,0,1,1,1),
+                                                                     colour=c('black',cols,cols))))
   }
   
-  # figure out plot ranges, based on data ranges:
-  xlim.D<-range(tmp[[1]]$rich)*c(0.98,1.02)
-  ylim.D<-range(tmp[[1]]$value)*c(0.98,1.02)
+  # Figure out plot ranges, based on data ranges:
+  xlim.D <- range(tmp[[1]]$rich)*c(0.98,1.02)
+  ylim.D <- range(tmp[[1]]$value)*c(0.98,1.02)
   
-  # if user supplied xlim's
+  # If user supplied xlim's
   if(length(xlim)==2){
-    xlim.outer<-c(min(xlim.D[1],xlim[1]),max(xlim.D[2],xlim[2]))
-    xlim.inner<-xlim
+    xlim.outer <- c(min(xlim.D[1],xlim[1]), max(xlim.D[2],xlim[2]))
+    xlim.inner <- xlim
   }else{
-    xlim.outer<-xlim.inner<-xlim.D
+    xlim.outer <- xlim.inner <- xlim.D
   }
   
-  # if user supplied ylim's
-  if(length(ylim)==2){
-    ylim.outer<-c(min(ylim.D[1],ylim[1]),max(ylim.D[2],ylim[2]))
-    ylim.inner<-ylim
+  # If user supplied ylim's
+  if(length(ylim) == 2){
+    ylim.outer <- c(min(ylim.D[1],ylim[1]), max(ylim.D[2],ylim[2]))
+    ylim.inner <- ylim
   }else{
-    ylim.outer<-ylim.inner<-ylim.D
+    ylim.outer <- ylim.inner <- ylim.D
   }
   
-  # adjust inner plotting range
-  lzp<-lzp+coord_cartesian(xlim=xlim.inner,ylim=ylim.inner)
+  # Adjust inner plotting range
+  lzp <- lzp + coord_cartesian(xlim=xlim.inner, ylim=ylim.inner)
   
   # Select color and label options:
-  lzp<-lzp+theme_bw()+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank())+
-    scale_x_continuous("Species richness",limits=xlim.outer)
+  lzp <- lzp + theme_bw() + theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank()) +
+                            scale_x_continuous("Species richness", limits=xlim.outer)
   
-  if(loc.standardize==TRUE){
-    lzp<-lzp+scale_y_continuous("% change in EF vs. baseline",limits=ylim.outer)+
-      geom_hline(yintercept=0,linetype=2)
+  if(loc.standardize == TRUE){
+    lzp <- lzp + scale_y_continuous("% change in EF vs. baseline", limits=ylim.outer) +
+                 geom_hline(yintercept=0, linetype=2)
   }else{
-    lzp<-lzp+scale_y_continuous("Ecosystem function",limits=ylim.outer)
+    lzp <- lzp + scale_y_continuous("Ecosystem function", limits=ylim.outer)
   }
   
-  if(legend==TRUE){
-    lzp<-lzp+theme(legend.position="bottom",legend.title=element_blank())
+  if(legend == TRUE){
+    lzp <- lzp + theme(legend.position="bottom", legend.title=element_blank())
   }
   
-  if(legend==FALSE){
-    lzp<-lzp+theme(legend.position="none")
+  if(legend == FALSE){
+    lzp <- lzp + theme(legend.position="none")
   }
   
-  lzp<-lzp+ggtitle(main)
+  lzp <- lzp + ggtitle(main)
   
-  #  print(lzp)
   return(lzp)
 }
 
