@@ -16,6 +16,7 @@ Imports: dplyr,
     MASS,
     reshape2,
     vegan,
+    tidyr,
     tibble
 Suggests: knitr,
     rmarkdown

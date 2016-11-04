@@ -512,9 +512,6 @@ price.part.column<-function(sps, func, dat){
   # turn progress bar back on (so it's visible for high-level do command)
   options(dplyr.show_progress=T)  
   
-  # rename grouping variable columns to distinguish comparison communities.
-  names(res)[1:ngroups] <- paste(names(res[1:ngroups]),"y",sep=".")
-
   return(res)
 }
 
@@ -554,11 +551,19 @@ pairwise.price<-function(x,species='Species',func='Function'){
   }else{
 
     # apply the price.part.column function across sets of ref. comms in x
-    res <- x %>% do(price.part.column(.$species,.$func,dat=x))  
+    res <- x %>% do(tmp=price.part.column(.$species,.$func,dat=x))  
 
     # distinguish grouping column names of refs. from comparison comms.
     names(res)[1:length(gps)] <- paste(names(res[1:length(gps)]),"x",sep=".") 
 
+    # expand the tibble returned by do()
+    res<-tidyr::unnest(res)
+    print(res)
+    
+    # fix labels of comparison community's grouping variables
+    locs<-which(names(res) %in% gps)
+    names(res)[locs]<-paste(names(res)[locs],'y',sep='.')
+    
     # drops self-comparisons:
     res <- ungroup(res)
     res <- res %>% filter((SRE.L!=0 | SRE.G!=0 | SCE.L!=0 | SCE.G!=0 | CDE!=0))
