@@ -558,7 +558,6 @@ pairwise.price<-function(x,species='Species',func='Function'){
 
     # expand the tibble returned by do()
     res<-tidyr::unnest(res)
-    print(res)
     
     # fix labels of comparison community's grouping variables
     locs<-which(names(res) %in% gps)
