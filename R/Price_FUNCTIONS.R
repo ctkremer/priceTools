@@ -497,7 +497,7 @@ price.part.single<-function(sps,func,commX){
 #' 
 #' # write example
 #'
-price.part.column<-function(sps,func,dat){
+price.part.column<-function(sps, func, dat){
   gps<-groups(dat)      # snag the grouping variable(s)
   ngroups<-length(gps)  # how many are there?
   
@@ -508,13 +508,13 @@ price.part.column<-function(sps,func,dat){
   
   # calculate price components, given reference community
   res <- dat %>% group_by_(.dots=gps) %>% do(price.part.single(.$species,.$func,tmpX))
-  
+
   # turn progress bar back on (so it's visible for high-level do command)
   options(dplyr.show_progress=T)  
   
   # rename grouping variable columns to distinguish comparison communities.
   names(res)[1:ngroups] <- paste(names(res[1:ngroups]),"y",sep=".")
-  
+
   return(res)
 }
 
@@ -552,9 +552,10 @@ pairwise.price<-function(x,species='Species',func='Function'){
           grouping variable")
     break;
   }else{
+
     # apply the price.part.column function across sets of ref. comms in x
     res <- x %>% do(price.part.column(.$species,.$func,dat=x))  
-    
+
     # distinguish grouping column names of refs. from comparison comms.
     names(res)[1:length(gps)] <- paste(names(res[1:length(gps)]),"x",sep=".") 
 
