@@ -2,6 +2,7 @@
 ## To-do list
 
 
+# vectors flag in leap.zig (type 'cafe') not working?
 
 # Wishlist:
 
