@@ -393,11 +393,11 @@ leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
   
   if(raw.points==FALSE & vectors==TRUE){
     lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=cols) +
-                 guides(colour=guide_legend(nrow=3, override.aes=list(shape=c(NA,NA,NA,NA,NA), 
+                 guides(colour=guide_legend( override.aes=list(shape=c(NA,NA,NA,NA,NA), 
                                                                       linetype=c(1,1,1,1,1))))
   }else{
     lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=c('black',trcols,cols)) +
-                 guides(colour=guide_legend(nrow=3, override.aes=list(
+                 guides(colour=guide_legend( override.aes=list(
                                                                 shape=c(19,1,1,1,1,NA,NA,NA,NA,NA),
                                                                 linetype=c(0,0,0,0,0,1,1,1,1,1),
                                                                 colour=c('black',cols[1:4],cols))))
@@ -522,10 +522,10 @@ leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=F
   
   if(raw.points == FALSE & vectors == TRUE){
     lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=cols) +
-                 guides(colour=guide_legend(nrow=3, override.aes=list(shape=c(NA,NA),linetype=c(1,1))))
+                 guides(colour=guide_legend( override.aes=list(shape=c(NA,NA),linetype=c(1,1))))
   }else{
     lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=c('black',trcols,cols)) +
-                 guides(colour=guide_legend(nrow=3, override.aes=list(shape=c(19,1,1,NA,NA),
+                 guides(colour=guide_legend( override.aes=list(shape=c(19,1,1,NA,NA),
                                                                       linetype=c(0,0,0,1,1),
                                                                       colour=c('black',cols,cols))))
   }
@@ -651,11 +651,11 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
   
   if(raw.points==FALSE & vectors==TRUE){
     lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=cols) +
-                 guides(colour=guide_legend(nrow=3, override.aes=list(shape=c(NA,NA,NA),
+                 guides(colour=guide_legend( override.aes=list(shape=c(NA,NA,NA),
                                                                       linetype=c(1,1,1))))
   }else{
     lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=c('black',trcols,cols))+
-                 guides(colour=guide_legend(nrow=3, override.aes=list(shape=c(19,1,1,1,NA,NA,NA),
+                 guides(colour=guide_legend( override.aes=list(shape=c(19,1,1,1,NA,NA,NA),
                                                                      linetype=c(0,0,0,0,1,1,1),
                                                                      colour=c('black',cols,cols))))
   }
@@ -778,16 +778,16 @@ leap.zig.price <- function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.ba
                               arrow=arrow(length=unit(0.2,"cm"), ends="first"), linetype=linetype)
   }
   
-  cols <- c(alpha('#e41a1c'),alpha('#377elzp'),alpha('#4daf4a'),alpha('#984ea3'),alpha('#ff7f00'))
-  trcols <- c(alpha('#e41a1c',0.1),alpha('#377elzp',0.1),alpha('#4daf4a',0.1),alpha('#984ea3',0.1),alpha('#ff7f00',0.1))
+  cols <- c(alpha('#e41a1c'),alpha('#377eb8'),alpha('#4daf4a'),alpha('#984ea3'),alpha('#ff7f00'))
+  trcols <- c(alpha('#e41a1c',0.1),alpha('#377eb8',0.1),alpha('#4daf4a',0.1),alpha('#984ea3',0.1),alpha('#ff7f00',0.1))
   
   if(raw.points == FALSE & vectors == TRUE){
     lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=cols) +
-                 guides(colour=guide_legend(nrow=3,override.aes=list(shape=c(NA,NA,NA,NA,NA),
+                 guides(colour=guide_legend(override.aes=list(shape=c(NA,NA,NA,NA,NA),
                                                                      linetype=c(1,1,1,1,1))))
   }else{
     lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=c('black',trcols,cols)) +
-                 guides(colour=guide_legend(nrow=3,
+                 guides(colour=guide_legend(
                                  override.aes=list(shape=c(19,1,1,1,1,1,NA,NA,NA,NA,NA),
                                                    linetype=c(0,0,0,0,0,0,1,1,1,1,1),
                                                    colour=c('black',cols,cols))))
