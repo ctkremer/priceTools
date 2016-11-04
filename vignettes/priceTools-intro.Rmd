@@ -108,3 +108,98 @@ And additional values.
 
 ***
 
+
+# Exploring some real data
+
+## Example Data: Effects of nitrate fertilization on plant community composition and function
+
+This example explores data from Cedar Creek, MN on the biomass of species in plant communities, as a function of different levels of nitrate fertilization.
+
+```{r}
+?cedarcreek
+head(cedarcreek)
+```
+
+
+## Single Price equation comparison
+
+This data set provides many many different communities that we hope to compare. For now, we will just pull out two of them, corresponding to two replicates within the same site, with the same combination of treatments.
+
+```{r}
+# Pull out two example communities
+comX <- cedarcreek %>% filter(Plot == 1, NTrt == 1)
+comY <- cedarcreek %>% filter(Plot == 17, NTrt== 1)
+
+# We only need to keep the species ID and function columns:
+comX <- comX[,c('Species','Biomass')]
+comY <- comY[,c('Species','Biomass')]
+
+# Set up the data:
+comm <- data.setup(list(comX,comY))
+head(comm)
+```
+
+Great! Now we can run a Price equation partition on these two communities:
+
+```{r}
+pp <- price.part(comm)
+pp[1:5]
+```
+
+Again, we obtain the 5 components of the Price equation partition outlined in Fox & Kerr 2012. To provide some interpretation, we are trying to understand how changes in the presence and function of species influences differences in total function between community X and Y.
+
+* SRE.L is negative; losing species randomly from X decreases function (biomass).
+* SRE.G is positive; gaining species randomly in Y increases function (biomass).
+* SCE.L is positive; the species lost from X had lower function than average per-species function of the X community. One way to understand this is that the sum of SRE.L and SCE.L provide the total effect of species loss (SL). A positive value for SCE.L moderates the negative effect of SRE.L, making the total effect of species loss smaller. This means the species lost were not as high functioning as the 'average' species in X.
+* SCE.G is negative; the particular species gained in Y had below average function.
+* CDE is positive; species that occur in both X and Y show higher function in Y than they had in X.
+
+Of course, there are many additional pieces of information that we can obtain from these partitions, examing the full vector returned by `price.part()`
+
+```{r}
+pp
+```
+
+## Multiple, pairwise Price comparisons
+
+This is great, but repeating this process over and over again for the thousands and thousands of possible pairwise comparisons between communities and treatments in this data set is undesirable. The next section introduces some tools that can automate this process.
+
+The first step is to take our entire data set and provide information on the set of columns that are used to group species observations into a single community data set. In this case, this includes our treatment variables (NTrt) as well as columns indicating sampling structure (Plot). In a different data set, this might also include a time variable, like sampling date.
+
+First we will look at the high nitrogen addition treatment. This requires subsetting our data, which you can do in a bunch of ways (here I am making use of tools from the dplyr package).
+
+### Calculating pairwise comparisons
+
+For this example, we will return to data from Cedar Creek on the composition and function of plant communities. Before making calculations, we need to organize and process our data. Initially we will focus just on the most extreme nutrient addition, 28 g/m2/yr.
+
+```{r}
+data1 <- cedarcreek %>% filter(NAdd %in% c(0,27.2))
+```
+
+Another step we need to take is to identify the grouping variable(s) that organize our data, usually based on the treatment and replication structures in our data set. This is necessary for allowing our code to identify the unique communities that we want to compare.
+
+```{r}
+# Define a set of grouping and treatment variables and associate them with the data object:
+group.vars <- c('Plot')
+treat.vars <- c('NTrt','NAdd')
+grouped.data1 <- data1 %>% group_by_(.dots=c(group.vars, treat.vars))
+```
+
+Having grouped our data, we can use a function called `pairwise.price()` which will take our data frame and compute the Price equation paritions for all pairwise combinations of communities identified by our grouping variables. When we call the `pairwise.price()` function, we have to provide it with our grouped data, and also indicate which columns in the grouped data set contain the species IDs (`species="Species"`) and the ecosystem function we are examining (`func="Biomass"`).
+
+*CAUTION* - This function can take a while to run, as the number of pairwise comparisons can be quite large. It is worth pausing to think a moment before running this function so you are aware of the size of the computational task you are setting for your computer (and maybe whether you have time to go have a coffee).
+
+```{r}
+# Calculate pairwise comparisons of sampled communities using the price equation.
+#   -  NOTE: Self-comparisons of each community to itself are automatically excluded
+res1 <- pairwise.price(grouped.data1, species="Species", func="Biomass")
+head(res1)
+```
+
+This is pretty awesome. For each of our treatment, site, and replicate combinations, we now have the 5-part Price equation partition, as well as combinations of these terms (SL, SG, SR, CE). There are also additional columns keeping track of the function and richness of the baseline and comparison communities, and the number of shared species between communities.
+
+Take a look at the second line of the `res1` data frame. It should look pretty familiar, because it is the set of results we obtained from our single Price equation comparison in the previous section. But now we have all of the possible pairwise comparisons, which will allow us to disentangle treatment effects from background noise caused by sampling error or process error. The next section will explore ways of visualizing and analyzing this data set of pairwise Price comparisons.
+
+
+
+
