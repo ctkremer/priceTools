@@ -15,16 +15,6 @@ find.dropbox<-function(){
 # Detect user/platform & find dropbox:
 to.dropbox<-find.dropbox()
 
-# load remaining tools for project:
-source(paste(to.dropbox,"/sCAFE_SharedFolder/sCAFE_R_Code/current_tools/Price_FUNCTIONS_080116.R",sep=""))
-
-# function for accessing ggplot color palette
-gg_color_hue <- function(n) {
-  hues = seq(15, 375, length = n + 1)
-  hcl(h = hues, l = 65, c = 100)[1:n]
-}
-#gg_color_hue(6)
-
 
 ##################
 
@@ -74,9 +64,10 @@ cdr92<-subset(cdr, cdr$Year==1992)
 # just field D
 cdr92D<-subset(cdr92, cdr92$Field=="D")
 
-write.csv(cdr92D,"/Users/colin/Research/Active/PricePartition/code/priceTools/user/CedarCreek_e001.csv",row.names=F)
+cdr92D<-cdr92D[,c('Plot','NTrt','NAdd','Species','Biomass')]
 
 cedarcreek<-cdr92D
-?save
-save(cedarcreek,file="/Users/colin/Research/Active/PricePartition/code/priceTools/data/cedarcreek.Rdata")
+
+save(cedarcreek,file="/Users/colin/Research/Active/PricePartition/code/priceTools/data/cedarcreek.rda")
+
 
