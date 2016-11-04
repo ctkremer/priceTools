@@ -436,7 +436,7 @@ leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
   }
   
   if(legend == TRUE){
-    lzp <- lzp + theme(legend.position="bottom", legend.title=element_blank())
+    lzp <- lzp + theme(legend.title=element_blank())
   }
   
   if(legend == FALSE){
@@ -565,7 +565,7 @@ leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=F
   }
   
   if(legend == TRUE){
-    lzp <- lzp + theme(legend.position="bottom", legend.title=element_blank())
+    lzp <- lzp + theme(legend.title=element_blank())
   }
   
   if(legend == FALSE){
@@ -695,7 +695,7 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
   }
   
   if(legend == TRUE){
-    lzp <- lzp + theme(legend.position="bottom", legend.title=element_blank())
+    lzp <- lzp + theme(legend.title=element_blank())
   }
   
   if(legend == FALSE){
@@ -829,7 +829,7 @@ leap.zig.price <- function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.ba
   }
   
   if(legend == TRUE){
-    lzp <- lzp + theme(legend.position="bottom", legend.title=element_blank())
+    lzp <- lzp + theme(legend.title=element_blank())
   }else{
     lzp <- lzp + theme(legend.position="none")
   }
