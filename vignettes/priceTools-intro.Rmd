@@ -193,7 +193,7 @@ Having grouped our data, we can use a function called `pairwise.price()` which w
 # Calculate pairwise comparisons of sampled communities using the price equation.
 #   -  NOTE: Self-comparisons of each community to itself are automatically excluded
 res1 <- pairwise.price(grouped.data1, species="Species", func="Biomass")
-head(res1)
+head(data.frame(res1))
 ```
 
 This is pretty awesome. For each of our treatment, site, and replicate combinations, we now have the 5-part Price equation partition, as well as combinations of these terms (SL, SG, SR, CE). There are also additional columns keeping track of the function and richness of the baseline and comparison communities, and the number of shared species between communities.
@@ -201,5 +201,240 @@ This is pretty awesome. For each of our treatment, site, and replicate combinati
 Take a look at the second line of the `res1` data frame. It should look pretty familiar, because it is the set of results we obtained from our single Price equation comparison in the previous section. But now we have all of the possible pairwise comparisons, which will allow us to disentangle treatment effects from background noise caused by sampling error or process error. The next section will explore ways of visualizing and analyzing this data set of pairwise Price comparisons.
 
 
+### Visually comparing Price partition results
 
+After manipulating these results a little bit, we can use a set of new graphing functions to explore visually and statistically how different decompositions of changes in ecosystem function (BEF, CAFE, Price) respond to the imposed nutrient enrichment treatment.
+
+#### Data setup
+
+```{r}
+# Create a single column keeping track of the paired set of enrichment treatments & other grouping variables:
+pp1<-res1
+pp1<-group.columns(pp1,gps=c(group.vars,treat.vars),drop=T)
+head(pp1)
+```
+
+Depending on the analyses that we are interested in, and what we want to test, we do not need to examine all pairs of comparisons. We can subset the results of `pairwise.price()` to remove unneeded comparisons. For example, in this analysis, we are interested in the control-control comparisons (here, comparisions of communities where NAdd=0). We also want to retain the control-treatment comparisons (here, comparisions of communities where NAdd=(0 and 27.2)), but not the treatment-control comparisons, because we want to be able to identify directional effects of imposing a disturbance treatment.
+
+```{r}
+# Subset pairwise results:
+pp1<-pp1[pp1$NAdd %in% c('0 0','0 27.2'),]
+
+# Update factor labeling for Disturbance treatment (helps later with plotting)
+pp1$NAdd<-factor(as.character(pp1$NAdd),levels=c('0 0','0 27.2'))
+head(as.data.frame(pp1))
+
+# Stash data on distinct sets of comparisons separately (to aid plotting)
+dat1<-pp1[pp1$NAdd %in% c('0 27.2'),]
+dat1.ctrl<-pp1[pp1$NAdd %in% c('0 0'),]
+```
+
+
+#### CAFE-style vector plots
+
+We can plot the result of the pairwise Price comparisons using the `leap.zip()` function, which is essentially a wrapper for a complex ggplot construction. It requires inputting a data set of comparisons, resulting from the `pairwise.price()` computation we ran earlier. This `leap.zip()` function can accept a large number of options, which give the user control over the appearance and content of the final plot. Several examples follow.
+
+First, we can look at the CAFE-style decomposition of changes in ecosystem function (by specifying `type='cafe'`). 
+
+```{r,warning=FALSE}
+leap.zig(dat1,type='cafe',main="Enrichment \n(0 vs. 27.2)")
+```
+
+Additional options allow us to provide plot titles, change the size of the plotting window, and display the mean vectors associated with each component as well as associated error bars.
+
+```{r,warning=FALSE}
+leap.zig(dat1,type='cafe',main="Enrichment \n(0 vs. 27.2)",
+              xlim=c(3,18),ylim=c(-100,700))
+
+leap.zig(dat1,type='cafe',main="Enrichment \n(0 vs. 27.2)",
+              xlim=c(3,18),ylim=c(-100,700),error.bars=T)
+
+leap.zig(dat1,type='cafe',main="Enrichment \n(0 vs. 27.2)",
+              xlim=c(3,18),ylim=c(-100,700),error.bars=T,vectors=T)
+```
+
+Note that by default, the `leap.zig()` function standardizes all changes in function by the total function of the baseline communities. As a result, all y-axis values can be viewed as %changes in ecosystem function relative to the baseline community. Alternatively, we can avoid this choice of standardization by:
+
+```{r,warning=FALSE}
+leap.zig(dat1,type='cafe',main="Enrichment \n(0 vs. 27.2)",standardize = FALSE)
+```
+
+These plots can get quite busy. Sometimes it will be helpful to make similar plots, but display only the mean vectors across pairwise comparisons:
+
+```{r,warning=FALSE}
+leap.zig(dat1,type='cafe',main="Enrichment \n(0 vs. 27.2)",
+              xlim=c(3,18),ylim=c(-100,700),raw.points=F,error.bars=T,vectors=T)
+```
+
+We can also get a sense of how this plot of control-treatment pairs looks compared with control-control pairs. This requires saving the graphical vector plots that result from multiple treatments. Then we can draw plots side-by-side:
+
+```{r,warning=FALSE}
+library(gridExtra)
+
+s1 <- leap.zig(dat1.ctrl,type='cafe',main="Enrichment \n(0 vs. 0)",
+             xlim=c(3,18),ylim=c(-100,700),error.bars=T,
+             vectors=T,raw.points = F,legend=FALSE)
+s2 <- leap.zig(dat1,type='cafe',main="Enrichment \n(0 vs. 27.2)",
+             xlim=c(3,18),ylim=c(-100,700),error.bars=T,
+             vectors=T,raw.points = F,legend=FALSE)
+grid.arrange(s1,s2,nrow=1)
+```
+
+
+
+
+#### BEF-style vector plots
+
+Analogous sets of plots can be produced for the BEF decomposition of changes in ecosystem function.
+
+```{r,warning=FALSE}
+leap.zig(dat1,type='bef',main="Enrichment \n(0 vs. 27.2)",
+         xlim=c(3,18),ylim=c(-100,700),error.bars=T,vectors=T)
+```
+
+With vectors only:
+
+```{r,warning=FALSE}
+leap.zig(dat1,type='bef',main="Enrichment \n(0 vs. 27.2)",
+         xlim=c(3,18),ylim=c(-100,700),raw.points=F,error.bars=T,vectors=T)
+```
+
+
+#### 5-part Price vector plots
+
+Analogous sets of plots can be produced for the full 5-part Price decomposition of changes in ecosystem function.
+
+```{r,warning=FALSE}
+leap.zig(dat1,type='price',main="Enrichment \n(0 vs. 27.2)",
+         xlim=c(3,18),ylim=c(-100,700),error.bars=T,vectors=T)
+```
+
+Or just the vectors:
+
+```{r,warning=FALSE}
+leap.zig(dat1,type='price',main="Enrichment \n(0 vs. 27.2)",
+         xlim=c(5,15),ylim=c(-50,520),raw.points=F,error.bars=F,vectors=T)
+```
+
+
+
+#### Visually comparing treatments
+
+We can also compare the results of multiple treatments, in a variety of ways.
+
+First, CAFE vs. BEF comparisons can be made easily using `type='both'` in function `leap.zig()`, as follows:
+
+```{r,warning=FALSE}
+leap.zig(dat1,type='both',standardize=T,
+         xlim=c(3,18),ylim=c(-100,700),error.bars=F,
+         main="Enrichment \n(0 vs. 27.2)",vectors=T,raw.points = F,legend=T)
+```
+
+Other comparisons can also be made, by saving the output of one or more vector plots, which then can be drawn side-by-side, or on top of each other. 
+
+To demonstrate this, we can process data for all of the different nitrate addition treatments at once, using code very similar to the previous section:
+
+```{r}
+data2<- cedarcreek %>% filter(NTrt != 9)
+
+group.vars<-c('Plot')
+treat.vars<-c('NTrt','NAdd')
+grouped.data2 <- data2 %>% group_by_(.dots=c(group.vars,treat.vars))
+
+res2<- pairwise.price(grouped.data2,species="Species",func="Biomass")
+pp2<-res2
+
+# retain only comparisons against NTrt.x = 1
+pp2<-pp2[pp2$NTrt.x==1,]
+pp2<-group.columns(pp2,gps=c(group.vars,treat.vars),drop=T)
+head(pp2)
+```
+
+Then we can compare vector plots, either side-by-side:
+
+```{r,warning=FALSE}
+tmp1 <- pp2 %>% filter(NAdd=="0 5.44")
+s1<-leap.zig(tmp1,type='cafe',main="Enrichment \n(0 vs. 5.44)",
+             xlim=c(0,20),ylim=c(-100,700),error.bars=F,
+             vectors=T,raw.points = F,legend=FALSE)
+
+tmp2 <- pp2 %>% filter(NAdd=="0 27.2")
+s2<-leap.zig(tmp2,type='cafe',main="Enrichment \n(0 vs. 27.2)",
+             xlim=c(0,20),ylim=c(-100,700),error.bars=F,
+             vectors=T,raw.points = F,legend=FALSE,linetype=2)
+
+grid.arrange(s1,s2,nrow=1)
+```
+
+Then on top of each other:
+
+```{r,warning=FALSE}
+leap.zig(tmp2,type='cafe',main="Comparing different nitrate levels",
+         xlim=c(0,20),ylim=c(-100,700),
+         error.bars=F,vectors=T,raw.points = F,legend=FALSE,
+         add=TRUE,old.plot=s1,linetype=2)
+```
+
+
+### Statistical comparisons
+
+We have also designed a suite of statistical tests that can be run on each of the components behind the vectors in the visualizations we just explored. At the simplest, these depend on comparing two distributions for each component, such as the CDE term. The first distribution comes from the set of all pairwise comparisons of control-control communities, while the second comes from the control-treatment pairs. Currently, we use parametric tests to determine whether these distributions differ in terms of their means and variances.
+
+To provide an example, let us first examine the BEF decomposition for the Disturbance data. In terms of vector plots, we saw:
+
+```{r,warning=FALSE}
+s1<-leap.zig(dat1.ctrl,type='bef',main="Enrichment \n(0 vs. 0)",
+             xlim=c(5,25),ylim=c(-10,700),error.bars=F,
+             vectors=T,raw.points = F,legend=FALSE)
+s2<-leap.zig(dat1,type='bef',main="Enrichment \n(0 vs. 27.2)",
+             xlim=c(5,25),ylim=c(-10,700),error.bars=F,
+             vectors=T,raw.points = F,legend=FALSE)
+grid.arrange(s1,s2,nrow=1)
+```
+
+When we run the statistical tests, we see:
+
+```{r}
+test.partitions(pp1,type='bef',treat.var = 'NAdd',control = '0 0',print=F,plot=F)
+```
+
+
+This function returns a table of statistical results. Within the table, the first column specifies the variable (vector component) being tested. Reading across the columns left to right, we find.
+
+* `trt.mean` the mean value for each vector component within the control-treatment pairs.
+* `ctrl.mean` and then for the control-control pairs.
+* `delta.mean` the difference of these values.
+* `mn.pvals` a p-value associated with the difference in means of the distributions.
+* `delta.var` the difference in variance between the distributions.
+* `var.pvals` a p-value associated with the difference in variance.
+
+In this case, we see that there are significant changes in.
+
+* s.change (the net change in species richness between communities); where communities enriched with nitrate lose roughly 2 species.
+* SR (change in function corresponding to net change in richness); in this case an increase in function, despite a decrease in richness. This conflicts with the idea of a positive relationship between diversity and ecosystem function.
+* CE (change in function due to context dependence and composition); in this case, there is a significant increase in CE compared with the baseline, unenriched communities.
+  
+*NOTE:* With these analyses, it is quite easy to end up running tests based on distributions composed of a large number of individual values (essentially, the number of possible pairwise comparisons can grow large quite easily). In many situations this endows our statistical tests with the power to detect even quite small effects as significant. It is very important to pay attention to effect sizes as a result of this.
+  
+As an aid to interpretation, we can run this same analysis and produce an optional visual tool, using the option `plot=T`:
+
+```{r}
+test.partitions(pp1,type='bef',treat.var = 'NAdd',control = '0 0',print=F,plot=T)
+```
+
+Similar results can be obtained invoking different decompositions of change in ecosystem function (e.g., CAFE, 5-part Price), as follows:
+
+```{r}
+test.partitions(pp1,type='cafe',treat.var = 'NAdd',control = '0 0',print=F,plot=F)
+
+test.partitions(pp1,type='price',treat.var = 'NAdd',control = '0 0',print=F,plot=F)
+```
+
+*NOTE:* I have included estimates for slopes/magnitudes for the CAFE components only. We are still trying to understand if these alternate parameterizations of vectors offer any additional useful interpretations over the raw X and Y components of each vector. If they prove useful, the BEF and Price code can be extended to match.
+
+*CAUTION:* for compatability with the vector plots, these statistical tests should be standardized (or not standardized), depending on earlier choices, using the flag: `standardize=T`.
+
+*NOTE:* standardizing values has some interesting effects on control-control components. In several cases, values that we expect to be centered on zero due to symmetry actually shift away from zero. This is mathematically correct, if initially unintuitive, and arises from taking the mean of often highly skewed distributions. Whether this is desirable or avoidable is an open question.
+
+***
 
