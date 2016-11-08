@@ -517,8 +517,8 @@ leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=F
                            arrow=arrow(length=unit(0.2,"cm"),ends="first"), linetype=linetype)
   }
   
-  cols <- c(alpha('#7fcdbb'),alpha('#e34a33'))
-  trcols <- c(alpha('#7fcdbb',0.1),alpha('#e34a33',0.1))
+  cols <- c(alpha('#0000ff'),alpha('#ff00ff'))
+  trcols <- c(alpha('#0000ff',0.1),alpha('#ff00ff',0.1))
   
   if(raw.points == FALSE & vectors == TRUE){
     lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=cols) +
@@ -646,8 +646,8 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
                            arrow=arrow(length=unit(0.2,"cm"), ends="first"))
   }
   
-  cols <- c(alpha('#d95f02'),alpha('#1b9e77'),alpha('#7570b3'))
-  trcols <- c(alpha('#d95f02',0.1),alpha('#1b9e77',0.1),alpha('#7570b3',0.1))
+  cols <- c(alpha('#ff0000'), alpha('#00ee00'), alpha('#900090')) 
+  trcols <- c(alpha('#ff0000',0.1), alpha('#00ee00',0.1), alpha('#900090',0.1))
   
   if(raw.points==FALSE & vectors==TRUE){
     lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=cols) +
