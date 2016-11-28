@@ -50,35 +50,43 @@ process.data.cafe<-function(data, group.vars=NULL, standardize=TRUE){
                                 ifelse(p2$variable == "y.func", p2$y.rich, NA))))
   
   # summarize raw points:
-  p3b <- p2 %>% group_by(variable) %>% summarise(mean.y=mean(value),
-                                                y.qt.lw=quantile(value, probs=0.025),
-                                                y.qt.up=quantile(value, probs=0.975),
-                                                mean.x=mean(rich),
-                                                x.qt.lw=quantile(rich, probs=0.025),
-                                                x.qt.up=quantile(rich, probs=0.975))
+  if(!is.null(group.vars)){
+    p3b <- p2 %>% group_by_(.dots=c(group.vars,'variable')) %>% summarise(mean.y=mean(value),
+                                                                          y.qt.lw=quantile(value, probs=0.025),
+                                                                          y.qt.up=quantile(value, probs=0.975),
+                                                                          mean.x=mean(rich),
+                                                                          x.qt.lw=quantile(rich, probs=0.025),
+                                                                          x.qt.up=quantile(rich, probs=0.975))
+  }else{
+    p3b <- p2 %>% group_by(variable) %>% summarise(mean.y=mean(value),
+                                                   y.qt.lw=quantile(value, probs=0.025),
+                                                   y.qt.up=quantile(value, probs=0.975),
+                                                   mean.x=mean(rich),
+                                                   x.qt.lw=quantile(rich, probs=0.025),
+                                                   x.qt.up=quantile(rich, probs=0.975))
+  }
   
-  # stagger rows:
-  p3b2 <- p3b
-  nms <- p3b2$variable[2:4]
-  p3b2 <- p3b2[1:3,]
-  p3b2$variable <- nms
-  p4 <- rbind(p3b, p3b2)
-  p4 <- p4[p4$variable != "x.func",]
+  p4 <- p3b
   
+
   # Organize factor levels for plotting:
   p2$variable <- factor(p2$variable,levels=c("x.func","SL","SG","y.func"),
-                          labels=c("baseline","SL","SG","comparison"))
+                        labels=c("baseline","SL","SG","comparison"))
   p3b$variable <- factor(p3b$variable,levels=c("x.func","SL","SG","y.func"),
-                          labels=c("baseline","SL","SG","comparison"))
-  p4$variable <- factor(p4$variable,levels=c("SL","SG","y.func"),
-                          labels=c("SL vector","SG vector","CDE vector"))
-  
+                         labels=c("baseline","SL","SG","comparison"))
+
+  # updated code:
+  p4$variable <- as.character(p4$variable)
+  p4$variable <- ifelse(p4$variable=="y.func","SG",p4$variable)
+  p4$variable <- factor(p4$variable,levels=c("x.func","SL","SG"),
+                        labels=c("SL vector","SG vector","CDE vector"))
+
   p2$variable <- factor(p2$variable, levels=c("baseline","SL","SG","comparison",
-                                             "SL vector","SG vector","CDE vector"))
+                                              "SL vector","SG vector","CDE vector"))
   p3b$variable <- factor(p3b$variable, levels=c("baseline","SL","SG","comparison",
-                                               "SL vector","SG vector","CDE vector"))
+                                                "SL vector","SG vector","CDE vector"))
   p4$variable <- factor(p4$variable, levels=c("baseline","SL","SG","comparison",
-                                             "SL vector","SG vector","CDE vector"))
+                                              "SL vector","SG vector","CDE vector"))
   
   p3b <- p3b[p3b$variable != "baseline",]
   
@@ -617,6 +625,10 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
   
   # Set up group column?
   if(!is.null(gp.vars)){
+    if(length(gp.vars)>1){
+      print("Error in leap.zig.cafe()! Only a single grouping variable implemented")
+      break()
+    }
     tmp3$gps <- data.frame(tmp3[,gp.vars])[,1]    
   }
   
@@ -641,10 +653,6 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
   }
   
   # Add vectors
-#  if(vectors){
-#    lzp <- lzp + geom_path(data=tmp[[3]], aes(colour=variable, x=mean.x, y=mean.y),
-#                           arrow=arrow(length=unit(0.2,"cm"), ends="first"), linetype=linetype)
-#  }
   if(vectors){
     if(!is.null(gp.vars)){
       lzp <- lzp + geom_path(data=tmp3, aes(colour=variable, x=mean.x, y=mean.y,group=gps),
