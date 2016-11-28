@@ -605,13 +605,19 @@ leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=F
 #' @export
 #' @import ggplot2
 leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE,
-                        raw.points=TRUE, vectors=TRUE, all.vectors=FALSE,
+                        raw.points=TRUE, vectors=TRUE, all.vectors=FALSE,gp.vars=NULL,
                         legend=TRUE, old.plot=NA, main="", linetype=1, add=FALSE){
-
+  # rename to simplify code:
+  tmp3<-tmp[[3]]
+  
   # Trim out un-needed factor levels
   if(raw.points == FALSE & vectors == TRUE){
-    tmp[[3]]$variable <- factor(as.character(tmp[[3]]$variable), levels=c("SL vector","SG vector",
-                                                                          "CDE vector"))
+    tmp3$variable <- factor(as.character(tmp3$variable), levels=c("SL vector","SG vector","CDE vector"))
+  }
+  
+  # Set up group column?
+  if(!is.null(gp.vars)){
+    tmp3$gps <- data.frame(tmp3[,gp.vars])[,1]    
   }
   
   # Plot it:
@@ -635,11 +641,20 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
   }
   
   # Add vectors
+#  if(vectors){
+#    lzp <- lzp + geom_path(data=tmp[[3]], aes(colour=variable, x=mean.x, y=mean.y),
+#                           arrow=arrow(length=unit(0.2,"cm"), ends="first"), linetype=linetype)
+#  }
   if(vectors){
-    lzp <- lzp + geom_path(data=tmp[[3]], aes(colour=variable, x=mean.x, y=mean.y),
-                           arrow=arrow(length=unit(0.2,"cm"), ends="first"), linetype=linetype)
+    if(!is.null(gp.vars)){
+      lzp <- lzp + geom_path(data=tmp3, aes(colour=variable, x=mean.x, y=mean.y,group=gps),
+                             arrow=arrow(length=unit(0.2,"cm"), ends="last"), linetype=linetype)
+    }else{
+      lzp <- lzp + geom_path(data=tmp3, aes(colour=variable, x=mean.x, y=mean.y),
+                             arrow=arrow(length=unit(0.2,"cm"), ends="last"), linetype=linetype)
+    }
   }
-
+  
   if(all.vectors){
     lzp <- lzp + geom_path(data=tmp[[1]], aes(colour=variable, x=rich, y=value, linetype=Plot),
                            arrow=arrow(length=unit(0.2,"cm"), ends="first"))
