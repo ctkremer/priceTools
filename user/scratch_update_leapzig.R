@@ -85,26 +85,40 @@ leap.zig.cafe(tmpA, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.b
 
 leap.zig.cafe(tmpA, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,gp.vars = 'NAdd')+facet_wrap(~Field)
 
+
 labs<-tmpA[[3]]
+
+helper<-function(x){
+  sign(x[2]-x[1])
+}
+labs2<-labs %>% filter(variable=='CDE vector') %>% group_by(NAdd,Field) %>% summarise(sgn=helper(mean.y))
+labs <- merge(labs,labs2,all.x = T,by=c('NAdd','Field'))
 labs<-labs[labs$variable=='CDE vector',]
 labs<-labs[seq(2,64,2),]
-labs$mean.y<-labs$mean.y+30
+head(labs)
 
-leap.zig.cafe(tmpA, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,gp.vars = 'NAdd',ylim=c(0,600),xlim=c(0,18))+geom_text(data=labs,aes(x=mean.x,y=mean.y,label=NAdd.y),size=2)+facet_wrap(~Field)
+leap.zig.cafe(tmpA, loc.standardize=F, vectors=T,raw.points = F,
+              legend=F,error.bars=F,gp.vars = 'NAdd',ylim=c(0,600),
+              xlim=c(0,18))+
+    geom_text(data=labs,aes(x=mean.x,y=I(mean.y+sgn*30),label=NAdd.y),size=3)+
+    facet_wrap(~Field)
 
 
 
 # experimental
 tmpC<-process.data.cafe(data=ppA[ppA$Field=='C' & ppA$NAdd.y==27.20,], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
-leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,gp.vars = NULL,xlim=c(0,20))
+leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = NULL,xlim=c(0,20),all.vectors = T)
 # why did this break?
 
+# Multiple N treatments with error bars
 tmpC<-process.data.cafe(data=ppA[ppA$Field=='C',], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
-leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,gp.vars = 'NAdd',xlim=c(0,20))
+leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=T,gp.vars = 'NAdd',xlim=c(0,20))
 
+# Multiple fields
 tmpC<-process.data.cafe(data=ppA[ppA$NAdd.y==27.20,], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
 leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,gp.vars = 'Field',xlim=c(0,20))
 
+# Panels by N treatment, vectors by field
 tmpC<-process.data.cafe(data=ppA, group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
 leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,gp.vars = 'Field',xlim=c(0,20))+facet_wrap(~NAdd.y)
 
@@ -115,161 +129,159 @@ leap.zig.cafe(tmpA, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.b
 leap.zig.cafe(tmpA, loc.standardize=F, vectors=T,raw.points = T,legend=F,error.bars=F,gp.vars = 'NAdd')+facet_wrap(~Field)
 
 
-# test function
-leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE,
-                        raw.points=TRUE, vectors=TRUE, all.vectors=FALSE,gp.vars=NULL,
-                        legend=TRUE, old.plot=NA, main="", linetype=1, add=FALSE){
-  
-  tmp3<-tmp[[3]]
-  
-  # Trim out un-needed factor levels
-  tmp3$variable <- factor(as.character(tmp3$variable), levels=c("SL vector","SG vector","CDE vector"))
-  
-  # Set up group column?
-  if(!is.null(gp.vars)){
-    tmp3$gps <- data.frame(tmp3[,gp.vars])[,1]    
-  }
-  
-  # Start plot
-  lzp <- ggplot()
 
-  # Add vectors
-  if(vectors){
-    if(!is.null(gp.vars)){
-      lzp <- lzp + geom_path(data=tmp3, aes(colour=variable, x=mean.x, y=mean.y,group=gps),
-                             arrow=arrow(length=unit(0.2,"cm"), ends="last"), linetype=linetype)
-    }else{
-      lzp <- lzp + geom_path(data=tmp3, aes(colour=variable, x=mean.x, y=mean.y),
-                             arrow=arrow(length=unit(0.2,"cm"), ends="last"), linetype=linetype)
-    }
-  }
-  
-  cols <- c(alpha('#ff0000'), alpha('#00ee00'), alpha('#900090')) 
-  trcols <- c(alpha('#ff0000',0.1), alpha('#00ee00',0.1), alpha('#900090',0.1))
-  lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=cols) +
-               guides(colour=guide_legend( override.aes=list(shape=c(NA,NA,NA),
-                                                    linetype=c(1,1,1))))
+### Over drought:
 
-  # Select color and label options:
-  lzp <- lzp + theme_bw() + theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank()) +
-    scale_x_continuous("Species richness")
-  lzp <- lzp + scale_y_continuous("Ecosystem function",limits=c(0,550))
+rs<-rbind(resA,resB,resC,resD[,-which(names(resD)=="jaccard")])
 
-  lzp <- lzp + theme(legend.position="none")
-  
-  lzp <- lzp + ggtitle(main)
-  
-  return(lzp)
-}
+rs<-rs[rs$Year.x==1986 & rs$Year.y==1988,]
+rs<-rs[rs$NAdd.x==rs$NAdd.y,]
 
-sue<-tmp[[3]] 
-sue<-sue[,c(2,3,6)]
+group.vars <- c('Plot','Year')
+treat.vars <- c()
+ppB<-group.columns(rs,gps=c(group.vars,treat.vars),drop=T)
+ppB$NAdd<-paste(ppB$NAdd.x,ppB$NAdd.y)
 
-hi<-data.frame(x=c(0,1,2,2),y=c(0,0,2,3))
-bye<-data.frame(x=c(0,1,2,2,0,1,0.5,0.5),y=c(0,0,2,3,1,1,2,3),
-                    gp=c('A','A','A','A','B','B','B','B'),col=as.factor(c(1,2,3,3,1,2,3,3)))
+head(rs)
 
-ggplot(hi,aes(x=x,y=y))+geom_path() 
+rs$i.rich<-rs$x.rich
+tmpB<-process.data.cafe(data=rs, group.vars=c('i.rich','Field'), standardize=F)
+head(tmpB)
 
-ggplot(bye,aes(x=x,y=y))+geom_path(aes(group=gp,colour=col),arrow=arrow(length=unit(0.2,"cm"), ends="last"))  
+#[rs$Plot.x==rs$Plot.y,]
+rs<-rbind(resA,resB,resC,resD[,-which(names(resD)=="jaccard")])
+rs<-rs[rs$Year.x==1986 & rs$Year.y==1988,]
+rs<-rs[rs$NAdd.x==rs$NAdd.y,]
+rs$i.rich<-rs$x.rich
+head(rs)
+str(rs)
 
-plot(mean.y~mean.x,data=sue)
+tmpB<-process.data.cafe(data=rs[rs$NTrt.x %in% c(1) & rs$Plot.x==rs$Plot.y,], group.vars=c('i.rich','NTrt.x'), standardize=F)
+
+labs<-tmpB[[3]]
+labs<-labs[labs$variable=='SL vector',]
+head(labs)
+
+leap.zig.cafe(tmpB, loc.standardize=F, vectors=T,raw.points = F,
+              legend=F,error.bars=F,gp.vars = 'i.rich',xlim=c(0,20),
+              ylim=c(50,600))+
+  geom_text(data=labs,aes(x=I(mean.x+0.5),y=mean.y,label=i.rich),size=3)+
+  facet_wrap(~NTrt.x)+
+  geom_point(data=jay,aes(x=i.rich,y=y.func))
+
+jay <- rs[rs$Plot.x==rs$Plot.y & rs$NTrt.x==1,] %>% group_by(i.rich) %>% summarise(y.func=mean(x.func))
+head(jay)
+head(tmpB[[3]])
+data.frame(tmpB[[3]])
 
 
 
 
+### Initial fig:
+
+rs<-rbind(resA,resB,resC,resD[,-which(names(resD)=="jaccard")])
+rs$Year<-paste(rs$Year.x,rs$Year.y)
+rs2<-rs[rs$Year.x==1982 & rs$Year.y==1986,]
+rs2<-rs2[rs2$NTrt.x==rs2$NTrt.y,]
+
+# NTrt = 1, from 82-86 
+rs5<-rs[rs$Year.y == '1986' & rs$Plot.x==rs$Plot.y & rs$NTrt.x==rs$NTrt.y,]
+rs5<-rs5[rs5$NTrt.x==1,]
+
+#library(bbmle)
+#m1<-mle2(x.func~dnorm(mean=10*a*x.rich/(x.rich+k),sd=exp(s)),start=list(a=30,k = 1,s=10),data=rs5)
+#summary(m1)
+pd<-predict(m1,newdata=data.frame(x.rich=seq(0,18,1)))
+pd2<-data.frame(x.rich=seq(0,18,1),x.func=pd)
+
+tmpB<-process.data.cafe(data=rs2, group.vars=c('NTrt.y','Field'), standardize=F)
+
+labs<-tmpB[[3]]
+labs<-labs[labs$variable=='SL vector',]
 
 
-# Needed changes:
-#   - process.data doesn't retain grouping variable in elements [[2]] and [[3]]
+leap.zig.cafe(tmpB, loc.standardize=F, vectors=T,raw.points = F,
+              legend=F,error.bars=F,group.vars = c('NTrt.y'),xlim=c(0,20),
+              ylim=c(50,600))+
+  geom_text(data=labs,aes(x=I(mean.x+0.5),y=mean.y,label=NTrt.y),colour='blue',
+            size=4)+
+  #geom_point(data=rs5,aes(x=x.rich,y=x.func),alpha=0.3,size=3)+
+  geom_line(data=pd2,aes(x=x.rich,y=x.func),col='blue')+
+  facet_wrap(~Field)+ggtitle(label = "1982 vs 1986")
 
-data<-dd
-data<-dat1
-group.vars<-c('NAdd')
-standardize<-F
 
-process.data.cafe<-function(data, group.vars=NULL, standardize=TRUE){
-  
-  if(standardize == TRUE){
-    comps <- c("SRE.L","SRE.G","SCE.L","SCE.G","CDE","SL","SG","SR","CE")
-    data[,comps] <- 100*data[,comps]/data$x.func                  # X function scaled
-    data$y.func <- 100*(data$y.func - data$x.func)/data$x.func    # Y function scaled
-    data$x.func <- 0 # X function set as baseline.
-    data$SG <- data$SL + data$SG  # net SG change:
-  } else{
-    data$x.func <- data$x.func
-    data$y.func <- data$y.func
-    data$SL <- data$x.func + data$SL
-    data$SG <- data$SL + data$SG
-  }
-  
-  # CAFE component    richness    function
-  # base = c(x.rich,x.func)
-  # SL = c(c.rich,SL)
-  # SG = c(y.rich,SL+SG)
-  # CDE = c(y.rich,y.func)
-  
-  cols <- c(group.vars,'x.func','SL','SG','y.func','x.rich','c.rich','y.rich')
-  p2 <- reshape2::melt(data[,cols],id.vars=c(group.vars,'x.rich','c.rich','y.rich'))
-  
-  # add richness column:
-  p2$rich <- ifelse(p2$variable == "x.func", p2$x.rich,
-                    ifelse(p2$variable == "SL", p2$c.rich,
-                           ifelse(p2$variable == "SG", p2$y.rich,
-                                  ifelse(p2$variable == "y.func", p2$y.rich, NA))))
-  
-  # summarize raw points:
-  if(!is.null(group.vars)){
-    p3b <- p2 %>% group_by_(.dots=c(group.vars,'variable')) %>% summarise(mean.y=mean(value),
-                                                 y.qt.lw=quantile(value, probs=0.025),
-                                                 y.qt.up=quantile(value, probs=0.975),
-                                                 mean.x=mean(rich),
-                                                 x.qt.lw=quantile(rich, probs=0.025),
-                                                 x.qt.up=quantile(rich, probs=0.975))
-  }else{
-    p3b <- p2 %>% group_by(variable) %>% summarise(mean.y=mean(value),
-                                                y.qt.lw=quantile(value, probs=0.025),
-                                                y.qt.up=quantile(value, probs=0.975),
-                                                mean.x=mean(rich),
-                                                x.qt.lw=quantile(rich, probs=0.025),
-                                                x.qt.up=quantile(rich, probs=0.975))
-  }
+# 1982 variation in function by N treatment
+sal<-rs2[rs2$Plot.x==rs2$Plot.y,]
+sal$NTrt.x<-as.factor(sal$NTrt.x)
+ggplot(data=sal,aes(y=x.func,Field,x=NTrt.x))+geom_boxplot(aes(fill=NTrt.x))+facet_wrap(~Field)
 
-  
-  # stagger rows:
-  #p3b2 <- p3b
-  #nms <- p3b2$variable[2:4]
-  #p3b2 <- p3b2[1:3,]  # instead, drop row y.func?
-  #p3b2 <- p3b2[p3b2$variable!='y.func',]
-  #p3b2$variable <- nms
-  #p4 <- rbind(p3b, p3b2)
-  #p4 <- p4[p4$variable != "x.func",]
-  p4 <- p3b
-  
-  # Organize factor levels for plotting:
-  p2$variable <- factor(p2$variable,levels=c("x.func","SL","SG","y.func"),
-                        labels=c("baseline","SL","SG","comparison"))
-  p3b$variable <- factor(p3b$variable,levels=c("x.func","SL","SG","y.func"),
-                         labels=c("baseline","SL","SG","comparison"))
-#  p4$variable <- factor(p4$variable,levels=c("SL","SG","y.func"),
-#                        labels=c("SL vector","SG vector","CDE vector"))
-  p4$variable <- as.character(p4$variable)
-  p4$variable <- ifelse(p4$variable=="y.func","SG",p4$variable)
-  p4$variable <- factor(p4$variable,levels=c("x.func","SL","SG"),
-                        labels=c("SL vector","SG vector","CDE vector"))
-p4  
-  
-  p2$variable <- factor(p2$variable, levels=c("baseline","SL","SG","comparison",
-                                              "SL vector","SG vector","CDE vector"))
-  p3b$variable <- factor(p3b$variable, levels=c("baseline","SL","SG","comparison",
-                                                "SL vector","SG vector","CDE vector"))
-  p4$variable <- factor(p4$variable, levels=c("baseline","SL","SG","comparison",
-                                              "SL vector","SG vector","CDE vector"))
-  
-  p3b <- p3b[p3b$variable != "baseline",]
-  
-  return(list(p2, p3b, p4))
-}
+
+# Or in one go:
+
+leap.zig(data=rs2,type='cafe',group.vars=c('NTrt.y'),standardize = F,
+         vectors=T,raw.points = F,
+         legend=F,error.bars=F,xlim=c(0,20),ylim=c(0,600))+
+  geom_text(data=labs,aes(x=I(mean.x+0.5),y=mean.y,label=NTrt.y),colour='blue',
+            size=4)+
+  geom_point(data=rs5,aes(x=x.rich,y=x.func),alpha=0.3,size=3)+
+  geom_line(data=pd2,aes(x=x.rich,y=x.func),col='blue')+
+  geom_hline(yintercept = 0)
 
 
 
+
+
+###############
+
+# Large test bed
+
+#### CAFE ####
+tmpC<-process.data.cafe(data=ppA[ppA$Field=='C' & ppA$NAdd.y==27.20,], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = NULL,xlim=c(0,20))
+
+# Multiple N treatments with error bars
+tmpC<-process.data.cafe(data=ppA[ppA$Field=='C',], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=T,group.vars = 'NAdd',xlim=c(0,20))
+
+# Multiple fields
+tmpC<-process.data.cafe(data=ppA[ppA$NAdd.y==27.20,], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20))
+
+# Panels by N treatment, vectors by field
+tmpC<-process.data.cafe(data=ppA, group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20))+facet_wrap(~NAdd.y)
+
+
+#### BEF ####
+tmpC<-process.data.bef(data=ppA[ppA$Field=='C' & ppA$NAdd.y==27.20,], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+leap.zig.bef(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = NULL,xlim=c(0,20))
+
+# Multiple N treatments with error bars
+tmpC<-process.data.bef(data=ppA[ppA$Field=='C',], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+leap.zig.bef(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=T,group.vars = 'NAdd',xlim=c(0,20))
+
+# Multiple fields
+tmpC<-process.data.bef(data=ppA[ppA$NAdd.y==27.20,], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+leap.zig.bef(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20))
+
+# Panels by N treatment, vectors by field
+tmpC<-process.data.bef(data=ppA, group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+leap.zig.bef(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20))+facet_wrap(~NAdd.y)
+
+
+
+#### Price ####
+tmpC<-process.data.price(data=ppA[ppA$Field=='C' & ppA$NAdd.y==27.20,], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+leap.zig.price(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = NULL,xlim=c(0,20))
+
+# Multiple N treatments with error bars
+tmpC<-process.data.price(data=ppA[ppA$Field=='C',], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+leap.zig.price(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'NAdd',xlim=c(0,20))
+
+# Multiple fields
+tmpC<-process.data.price(data=ppA[ppA$NAdd.y==27.20,], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+leap.zig.price(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20))
+
+# Panels by N treatment, vectors by field
+tmpC<-process.data.price(data=ppA, group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+leap.zig.price(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20))+facet_wrap(~NAdd.y)
