@@ -137,28 +137,38 @@ process.data.bef<-function(data, group.vars=NULL, standardize=TRUE){
                          ifelse(p2$variable == "y.func", p2$y.rich, NA)))
   
   # summarize raw points:
-  p3b <- p2 %>% group_by(variable) %>% summarise(mean.y=mean(value),
-                                                y.qt.lw=quantile(value, probs=0.025),
-                                                y.qt.up=quantile(value, probs=0.975),
-                                                mean.x=mean(rich),
-                                                x.qt.lw=quantile(rich, probs=0.025),
-                                                x.qt.up=quantile(rich, probs=0.975))
+  if(!is.null(group.vars)){
+    p3b <- p2 %>% group_by_(.dots=c(group.vars,'variable')) %>% 
+                  summarise(mean.y=mean(value),
+                            y.qt.lw=quantile(value, probs=0.025),
+                            y.qt.up=quantile(value, probs=0.975),
+                            mean.x=mean(rich),
+                            x.qt.lw=quantile(rich, probs=0.025),
+                            x.qt.up=quantile(rich, probs=0.975))
+  }else{
+    p3b <- p2 %>% group_by(variable) %>% summarise(mean.y=mean(value),
+                                                   y.qt.lw=quantile(value, probs=0.025),
+                                                   y.qt.up=quantile(value, probs=0.975),
+                                                   mean.x=mean(rich),
+                                                   x.qt.lw=quantile(rich, probs=0.025),
+                                                   x.qt.up=quantile(rich, probs=0.975))
+  }
+  
   
   # stagger rows:
-  p3b2 <- p3b
-  nms <- p3b2$variable[2:3]
-  p3b2 <- p3b2[1:2,]
-  p3b2$variable <- nms
-  p4 <- rbind(p3b, p3b2)
-  p4 <- p4[p4$variable != "x.func",]
+  p4 <- p3b
   
   # Organize factor levels for plotting:
   p2$variable <- factor(p2$variable,levels=c("x.func","SR","y.func"),
                           labels=c("baseline","SR","comparison"))
   p3b$variable <- factor(p3b$variable,levels=c("x.func","SR","y.func"),
                           labels=c("baseline","SR","comparison"))
-  p4$variable <- factor(p4$variable,levels=c("SR","y.func"),
-                          labels=c("SR vector","CE vector"))
+
+  # updated code:
+  p4$variable <- as.character(p4$variable)
+  p4$variable <- ifelse(p4$variable=="y.func","SR",p4$variable)
+  p4$variable <- factor(p4$variable,levels=c("x.func","SR"),
+                        labels=c("SR vector","CE vector"))
   
   p2$variable <- factor(p2$variable,levels=c("baseline","SR","comparison","SR vector",
                                             "CE vector"))
@@ -234,21 +244,25 @@ process.data.price<-function(data,group.vars=NULL,standardize=TRUE){
                   )
   
   # summarize raw points:
-  p3b <- p2 %>% group_by(variable) %>% summarise(mean.y=mean(value),
-                                                y.qt.lw=quantile(value, probs=0.025),
-                                                y.qt.up=quantile(value, probs=0.975),
-                                                mean.x=mean(rich),
-                                                x.qt.lw=quantile(rich, probs=0.025),
-                                                x.qt.up=quantile(rich, probs=0.975))
+  if(!is.null(group.vars)){
+    p3b <- p2 %>% group_by_(.dots=c(group.vars,'variable')) %>% summarise(mean.y=mean(value),
+                                                                          y.qt.lw=quantile(value, probs=0.025),
+                                                                          y.qt.up=quantile(value, probs=0.975),
+                                                                          mean.x=mean(rich),
+                                                                          x.qt.lw=quantile(rich, probs=0.025),
+                                                                          x.qt.up=quantile(rich, probs=0.975))
+  }else{
+    p3b <- p2 %>% group_by(variable) %>% summarise(mean.y=mean(value),
+                                                   y.qt.lw=quantile(value, probs=0.025),
+                                                   y.qt.up=quantile(value, probs=0.975),
+                                                   mean.x=mean(rich),
+                                                   x.qt.lw=quantile(rich, probs=0.025),
+                                                   x.qt.up=quantile(rich, probs=0.975))
+  }
   
   # stagger rows:
-  p3b2 <- p3b
-  nms <- p3b2$variable[2:6]
-  p3b2 <- p3b2[1:5,]
-  p3b2$variable <- nms
-  p4 <- rbind(p3b,p3b2)
-  p4 <- p4[p4$variable != "x.func",]
-  
+  p4 <- p3b
+
   # Organize factor levels for plotting:
   p2$variable <- factor(p2$variable, levels=c("x.func","SRE.L","SCE.L","SRE.G","SCE.G",
                                               "y.func"),
@@ -256,9 +270,12 @@ process.data.price<-function(data,group.vars=NULL,standardize=TRUE){
   p3b$variable <- factor(p3b$variable, levels=c("x.func","SRE.L","SCE.L","SRE.G","SCE.G",
                                                 "y.func"),
                         labels=c("baseline","SRE.L","SCE.L","SRE.G","SCE.G","comparison"))
-  p4$variable <- factor(p4$variable, levels=c("SRE.L","SCE.L","SRE.G","SCE.G","y.func"),
-                        labels=c("SRE.L vector","SCE.L vector","SRE.G vector",
-                                 "SCE.G vector","CDE vector"))
+  
+  # updated code:
+  p4$variable <- as.character(p4$variable)
+  p4$variable <- ifelse(p4$variable=="y.func","SCE.G",p4$variable)
+  p4$variable <- factor(p4$variable,levels=c("x.func","SRE.L","SCE.L","SRE.G","SCE.G"),
+                        labels=c("SRE.L vector","SCE.L vector","SRE.G vector","SCE.G vector","CDE vector"))
   
   p2$variable <- factor(p2$variable, levels=c("baseline","SRE.L","SCE.L","SRE.G","SCE.G",
                                               "comparison","SRE.L vector","SCE.L vector",
@@ -298,11 +315,11 @@ leap.zig<-function(data, type="cafe", group.vars=NULL, standardize=TRUE, ...){
   switch(type,
          cafe={
            tmp <- process.data.cafe(data, group.vars, standardize)
-           leap.zig.cafe(tmp, loc.standardize=standardize, ...)
+           leap.zig.cafe(tmp, loc.standardize=standardize, group.vars=group.vars, ...)
          },
          bef={
            tmp <- process.data.bef(data, group.vars, standardize)
-           leap.zig.bef(tmp, loc.standardize=standardize, ...)
+           leap.zig.bef(tmp, loc.standardize=standardize, group.vars=group.vars, ...)
          },
          both={
            tmp <- process.data.cafe(data, group.vars, standardize)
@@ -315,11 +332,11 @@ leap.zig<-function(data, type="cafe", group.vars=NULL, standardize=TRUE, ...){
            lvls <- c("baseline","SL","SG","SR","comparison","SL vector","SG vector","CDE vector",
                      "SR vector","CE vector")
            tmp[[1]]$variable <- factor(tmp[[1]]$variable, levels=lvls)
-           leap.zig.both(tmp, loc.standardize=standardize, ...)
+           leap.zig.both(tmp, loc.standardize=standardize, group.vars=group.vars, ...)
          },
          price={
-           tmp <- process.data.price(data,group.vars, standardize)
-           leap.zig.price(tmp, loc.standardize=standardize, ...)
+           tmp <- process.data.price(data, group.vars, standardize)
+           leap.zig.price(tmp, loc.standardize=standardize, group.vars=group.vars, ...)
          },
          "Error! Invalid plot method in leap.zig()"
   )
@@ -338,10 +355,8 @@ leap.zig<-function(data, type="cafe", group.vars=NULL, standardize=TRUE, ...){
 #' @param error.bars  Plot error bars
 #' @param raw.points  Plot raw data points at level of community pairs
 #' @param vectors     Plot averaged vectors
-#' @param all.vectors Plot vectors at level of community pairs
 #' @param legend      Show legend
 #' @param old.plot    ggplot object from previous \code{leap.zig()} call
-#' @param main        Plot title
 #' @param linetype    Type of line to draw for vector
 #' @param add         Add new plot to object provided in old.plot option
 #' 
@@ -354,8 +369,8 @@ leap.zig<-function(data, type="cafe", group.vars=NULL, standardize=TRUE, ...){
 #' @export
 #' @import ggplot2
 leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE,
-                        raw.points=TRUE, vectors=TRUE, all.vectors=FALSE,
-                        legend=TRUE, old.plot=NA, main="", linetype=1, add=FALSE){
+                        raw.points=TRUE, vectors=TRUE,
+                        legend=TRUE, old.plot=NA, linetype=1, add=FALSE){
 
   # Trim out un-needed factor levels
   if(raw.points == FALSE & vectors == TRUE){
@@ -387,12 +402,6 @@ leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
   if(vectors){
     lzp <- lzp + geom_path(data=tmp[[3]], aes(colour=variable, x=mean.x, y=mean.y),
                            arrow=arrow(length=unit(0.2,"cm"), ends="first"), linetype=linetype)
-  }
-  
-  if(all.vectors){
-    lzp <- lzp + geom_path(data=tmp[[1]][tmp[[1]]$variable!='baseline',],
-                           aes(colour=variable,x=rich,y=value), linetype=linetype,
-                           arrow=arrow(length=unit(0.2,"cm"),ends="first"))
   }
   
   cols <- c(alpha('#d95f02'),alpha('#1b9e77'),alpha('#7570b3'),alpha('#7fcdbb'),alpha('#e34a33'))
@@ -444,14 +453,10 @@ leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
   
   if(legend == TRUE){
     lzp <- lzp + theme(legend.title=element_blank())
-  }
-  
-  if(legend == FALSE){
+  }else{
     lzp <- lzp + theme(legend.position="none")
   }
-  
-  lzp <- lzp + ggtitle(main)
-  
+
   return(lzp)
 }
 
@@ -468,10 +473,8 @@ leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
 #' @param error.bars  Plot error bars
 #' @param raw.points  Plot raw data points at level of community pairs
 #' @param vectors     Plot averaged vectors
-#' @param all.vectors Plot vectors at level of community pairs
 #' @param legend      Show legend
 #' @param old.plot    ggplot object from previous \code{leap.zig()} call
-#' @param main        Plot title
 #' @param linetype    Type of line to draw for vector
 #' @param add         Add new plot to object provided in old.plot option
 #' 
@@ -484,12 +487,26 @@ leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
 #' @export
 #' @import ggplot2
 leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE,
-                       raw.points=TRUE, vectors=TRUE, all.vectors=FALSE,
-                       legend=TRUE, old.plot=NA, main="", linetype=1, add=FALSE){
+                       raw.points=TRUE, vectors=TRUE, group.vars=NULL,
+                       legend=TRUE, old.plot=NA, linetype=1, add=FALSE){
 
+  # rename to simplify code:
+  tmp3<-tmp[[3]]
+  
   # Trim out un-needed factor levels
   if(raw.points == FALSE & vectors == TRUE){
-    tmp[[3]]$variable <- factor(as.character(tmp[[3]]$variable), levels=c("SR vector","CE vector"))
+    tmp3$variable <- factor(as.character(tmp3$variable), levels=c("SR vector","CE vector"))
+  }
+  
+  # Set up group column?
+  if(!is.null(group.vars)){
+    if(length(group.vars)>1){
+      print("Error in leap.zig.bef()! Only a single grouping variable implemented")
+      break()
+    }
+    tmp3$gps <- data.frame(tmp3[,group.vars])[,1]    
+  }else{  # with no user-specified grouping variable, create a grouping variable with a single level as dummy column
+    tmp3$gps <- 1
   }
   
   # Plot it:
@@ -504,24 +521,18 @@ leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=F
     lzp <- lzp + geom_point(data=tmp[[1]], aes(colour=variable, x=rich, y=value))
   }
   
-  # Add error bars
+  # Add error bars.
   if(error.bars){
     lzp <- lzp + geom_errorbarh(data=tmp[[2]], aes(xmin=x.qt.lw, xmax=x.qt.up, x=mean.x, y=mean.y),
-                                colour='gray', linetype=linetype) +
-                 geom_errorbar(data=tmp[[2]], aes(ymin=y.qt.lw, ymax=y.qt.up, x=mean.x, y=mean.y),
-                               width=1, colour='gray', linetype=linetype)
+                                height=15, colour='gray', linetype=linetype)+
+                 geom_errorbar(data=tmp[[2]], aes(ymin=y.qt.lw, ymax=y.qt.up, x=mean.x),
+                                width=1, colour='gray', linetype=linetype)
   }
   
   # Add vectors
   if(vectors){
-    lzp <- lzp + geom_path(data=tmp[[3]], aes(colour=variable, x=mean.x, y=mean.y),
-                     arrow=arrow(length=unit(0.2,"cm"),ends="first"), linetype=linetype)
-  }
-  
-  if(all.vectors){
-    lzp <- lzp + geom_path(data=tmp[[1]][tmp[[1]]$variable!='baseline',],
-                           aes(colour=variable, x=rich, y=value),
-                           arrow=arrow(length=unit(0.2,"cm"),ends="first"), linetype=linetype)
+    lzp <- lzp + geom_path(data=tmp3, aes(colour=variable, x=mean.x, y=mean.y, group=gps),
+                           arrow=arrow(length=unit(0.2,"cm"), ends="last"), linetype=linetype)
   }
   
   cols <- c(alpha('#0000ff'),alpha('#ff00ff'))
@@ -578,9 +589,7 @@ leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=F
   if(legend == FALSE){
     lzp <- lzp + theme(legend.position="none")
   }
-  
-  lzp <- lzp + ggtitle(main)
-  
+
   return(lzp)
 }
 
@@ -597,10 +606,8 @@ leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=F
 #' @param error.bars  Plot error bars
 #' @param raw.points  Plot raw data points at level of community pairs
 #' @param vectors     Plot averaged vectors
-#' @param all.vectors Plot vectors at level of community pairs
 #' @param legend      Show legend
 #' @param old.plot    ggplot object from previous \code{leap.zig()} call
-#' @param main        Plot title
 #' @param linetype    Type of line to draw for vector
 #' @param add         Add new plot to object provided in old.plot option
 #' 
@@ -613,23 +620,27 @@ leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=F
 #' @export
 #' @import ggplot2
 leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE,
-                        raw.points=TRUE, vectors=TRUE, all.vectors=FALSE,gp.vars=NULL,
-                        legend=TRUE, old.plot=NA, main="", linetype=1, add=FALSE){
+                        raw.points=TRUE, vectors=TRUE, group.vars=NULL,
+                        legend=TRUE, old.plot=NA, linetype=1, add=FALSE){
+
   # rename to simplify code:
   tmp3<-tmp[[3]]
   
   # Trim out un-needed factor levels
   if(raw.points == FALSE & vectors == TRUE){
-    tmp3$variable <- factor(as.character(tmp3$variable), levels=c("SL vector","SG vector","CDE vector"))
+    tmp3$variable <- factor(as.character(tmp3$variable), 
+                            levels=c("SL vector","SG vector","CDE vector"))
   }
   
   # Set up group column?
-  if(!is.null(gp.vars)){
-    if(length(gp.vars)>1){
+  if(!is.null(group.vars)){
+    if(length(group.vars)>1){
       print("Error in leap.zig.cafe()! Only a single grouping variable implemented")
       break()
     }
-    tmp3$gps <- data.frame(tmp3[,gp.vars])[,1]    
+    tmp3$gps <- data.frame(tmp3[,group.vars])[,1]    
+  }else{  # with no user-specified grouping variable, create a grouping variable with a single level as dummy column
+    tmp3$gps <- 1
   }
   
   # Plot it:
@@ -647,25 +658,15 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
   # Add error bars.
   if(error.bars){
     lzp <- lzp + geom_errorbarh(data=tmp[[2]], aes(xmin=x.qt.lw, xmax=x.qt.up, x=mean.x, y=mean.y),
-                                colour='gray', linetype=linetype) +
-                 geom_errorbar(data=tmp[[2]], aes(ymin=y.qt.lw, ymax=y.qt.up, x=mean.x, y=mean.y),
+                               height=15, colour='gray', linetype=linetype)+
+                 geom_errorbar(data=tmp[[2]], aes(ymin=y.qt.lw, ymax=y.qt.up, x=mean.x),
                                width=1, colour='gray', linetype=linetype)
   }
-  
+
   # Add vectors
   if(vectors){
-    if(!is.null(gp.vars)){
-      lzp <- lzp + geom_path(data=tmp3, aes(colour=variable, x=mean.x, y=mean.y,group=gps),
+      lzp <- lzp + geom_path(data=tmp3, aes(colour=variable, x=mean.x, y=mean.y, group=gps),
                              arrow=arrow(length=unit(0.2,"cm"), ends="last"), linetype=linetype)
-    }else{
-      lzp <- lzp + geom_path(data=tmp3, aes(colour=variable, x=mean.x, y=mean.y),
-                             arrow=arrow(length=unit(0.2,"cm"), ends="last"), linetype=linetype)
-    }
-  }
-  
-  if(all.vectors){
-    lzp <- lzp + geom_path(data=tmp[[1]], aes(colour=variable, x=rich, y=value, linetype=Plot),
-                           arrow=arrow(length=unit(0.2,"cm"), ends="first"))
   }
   
   cols <- c(alpha('#ff0000'), alpha('#00ee00'), alpha('#900090')) 
@@ -718,13 +719,9 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
   
   if(legend == TRUE){
     lzp <- lzp + theme(legend.title=element_blank())
-  }
-  
-  if(legend == FALSE){
+  }else{
     lzp <- lzp + theme(legend.position="none")
   }
-  
-  lzp <- lzp + ggtitle(main)
   
   return(lzp)
 }
@@ -742,10 +739,8 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
 #' @param error.bars  Plot error bars
 #' @param raw.points  Plot raw data points at level of community pairs
 #' @param vectors     Plot averaged vectors
-#' @param all.vectors Plot vectors at level of community pairs
 #' @param legend      Show legend
 #' @param old.plot    ggplot object from previous \code{leap.zig()} call
-#' @param main        Plot title
 #' @param linetype    Type of line to draw for vector
 #' @param add         Add new plot to object provided in old.plot option
 #' 
@@ -758,12 +753,15 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
 #' @export
 #' @import ggplot2
 leap.zig.price <- function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE, 
-                            raw.points=TRUE, vectors=TRUE, all.vectors=FALSE, 
-                            legend=TRUE, old.plot=NA, main="", linetype=1, add=FALSE){
+                            raw.points=TRUE, vectors=TRUE, group.vars=NULL,
+                            legend=TRUE, old.plot=NA, linetype=1, add=FALSE){
+  
+  # rename to simplify code:
+  tmp3<-tmp[[3]]
   
   # Trim out un-needed factor levels
   if(raw.points == FALSE & vectors == TRUE){
-    tmp[[3]]$variable <- factor(as.character(tmp[[3]]$variable),
+    tmp3$variable <- factor(as.character(tmp3$variable),
                                 levels=c("SRE.L vector","SCE.L vector","SRE.G vector",
                                          "SCE.G vector","CDE vector"))
   }
@@ -775,29 +773,34 @@ leap.zig.price <- function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.ba
     lzp <- ggplot()
   }
   
+  # Set up group column?
+  if(!is.null(group.vars)){
+    if(length(group.vars)>1){
+      print("Error in leap.zig.cafe()! Only a single grouping variable implemented")
+      break()
+    }
+    tmp3$gps <- data.frame(tmp3[,group.vars])[,1]    
+  }else{  # with no user-specified grouping variable, create a grouping variable with a single level as dummy column
+    tmp3$gps <- 1
+  }
+  
   # Add points
   if(raw.points){
     lzp <- lzp + geom_point(data=tmp[[1]], aes(colour=variable, x=rich, y=value))
   }
   
-  # Add error bars
+  # Add error bars.
   if(error.bars){
     lzp <- lzp + geom_errorbarh(data=tmp[[2]], aes(xmin=x.qt.lw, xmax=x.qt.up, x=mean.x, y=mean.y),
-                                  colour='gray',linetype=linetype)+
-                 geom_errorbar(data=tmp[[2]], aes(ymin=y.qt.lw, ymax=y.qt.up, x=mean.x, y=mean.y),
-                                  width=1, colour='gray', linetype=linetype)
+                                height=15, colour='gray', linetype=linetype)+
+                 geom_errorbar(data=tmp[[2]], aes(ymin=y.qt.lw, ymax=y.qt.up, x=mean.x),
+                                width=1, colour='gray', linetype=linetype)
   }
   
   # Add vectors
   if(vectors){
-    lzp <- lzp + geom_path(data=tmp[[3]], aes(colour=variable, x=mean.x, y=mean.y),
-                              arrow=arrow(length=unit(0.2,"cm"), ends="first"), linetype=linetype)
-  }
-  
-  if(all.vectors){
-    lzp <- lzp + geom_path(data=tmp[[1]][tmp[[1]]$variable != 'baseline',],
-                              aes(colour=variable, x=rich, y=value),
-                              arrow=arrow(length=unit(0.2,"cm"), ends="first"), linetype=linetype)
+    lzp <- lzp + geom_path(data=tmp3, aes(colour=variable, x=mean.x, y=mean.y, group=gps),
+                           arrow=arrow(length=unit(0.2,"cm"), ends="last"), linetype=linetype)
   }
   
   cols <- c(alpha('#ff0000'), alpha('#800000'), alpha('#00ee00'), alpha('#009000'), alpha('#900090'))
@@ -857,7 +860,5 @@ leap.zig.price <- function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.ba
     lzp <- lzp + theme(legend.position="none")
   }
 
-  lzp <- lzp + ggtitle(main)
-  
   return(lzp)
 }
