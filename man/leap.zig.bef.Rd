@@ -6,8 +6,8 @@
 \usage{
 leap.zig.bef(tmp, xlim = NA, ylim = NA, loc.standardize = TRUE,
   error.bars = FALSE, raw.points = TRUE, vectors = TRUE,
-  all.vectors = FALSE, legend = TRUE, old.plot = NA, main = "",
-  linetype = 1, add = FALSE)
+  group.vars = NULL, legend = TRUE, old.plot = NA, linetype = 1,
+  add = FALSE)
 }
 \arguments{
 \item{tmp}{Data to plot}
@@ -22,13 +22,9 @@ leap.zig.bef(tmp, xlim = NA, ylim = NA, loc.standardize = TRUE,
 
 \item{vectors}{Plot averaged vectors}
 
-\item{all.vectors}{Plot vectors at level of community pairs}
-
 \item{legend}{Show legend}
 
 \item{old.plot}{ggplot object from previous \code{leap.zig()} call}
-
-\item{main}{Plot title}
 
 \item{linetype}{Type of line to draw for vector}
 
