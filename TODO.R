@@ -4,7 +4,6 @@
 
 # Wishlist:
 
-# update non-cafe versions of process.data and leapzig, to reflect new grouping capability
 # update leap.zig documentation and vignette to reflect changes in functionality
 # Test out new plotting scheme for leap.zig.both() function
 # write complete documentation
