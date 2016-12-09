@@ -18,6 +18,7 @@
 #' 
 #' # write one
 #' 
+#' @export
 #' @import dplyr
 process.data.cafe<-function(data, group.vars=NULL, standardize=TRUE){
   
@@ -109,6 +110,7 @@ process.data.cafe<-function(data, group.vars=NULL, standardize=TRUE){
 #' 
 #' # write one
 #'
+#' @export
 #' @import dplyr 
 process.data.bef<-function(data, group.vars=NULL, standardize=TRUE){
   
@@ -198,6 +200,7 @@ process.data.bef<-function(data, group.vars=NULL, standardize=TRUE){
 #' 
 #' # write one
 #' 
+#' @export
 #' @import dplyr
 process.data.price<-function(data,group.vars=NULL,standardize=TRUE){
   
