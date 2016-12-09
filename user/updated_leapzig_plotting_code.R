@@ -31,10 +31,10 @@ find.dropbox<-function(){
 to.dropbox<-find.dropbox()
 
 # load data
-resA<-read.csv(paste(to.dropbox,"/sCAFE_SharedFolder/sCAFE_Analyses/CedarCreek/e001/data/fieldA_timeXnitrate_pairwise_price_092116.csv",sep=""))
-resB<-read.csv(paste(to.dropbox,"/sCAFE_SharedFolder/sCAFE_Analyses/CedarCreek/e001/data/fieldB_timeXnitrate_pairwise_price_092116.csv",sep=""))
-resC<-read.csv(paste(to.dropbox,"/sCAFE_SharedFolder/sCAFE_Analyses/CedarCreek/e001/data/fieldC_timeXnitrate_pairwise_price_092116.csv",sep=""))
-resD<-read.csv(paste(to.dropbox,"/sCAFE_SharedFolder/sCAFE_Analyses/CedarCreek/e001/data/fieldD_timeXnitrate_pairwise_price_092116.csv",sep=""))
+resA<-read.csv(paste(to.dropbox,"/sCAFE_SharedFolder/sCAFE_Analyses/CedarCreek/e001/data/fieldA_timeXnitrate_pairwise_price_120916.csv",sep=""))
+resB<-read.csv(paste(to.dropbox,"/sCAFE_SharedFolder/sCAFE_Analyses/CedarCreek/e001/data/fieldB_timeXnitrate_pairwise_price_120916.csv",sep=""))
+resC<-read.csv(paste(to.dropbox,"/sCAFE_SharedFolder/sCAFE_Analyses/CedarCreek/e001/data/fieldC_timeXnitrate_pairwise_price_120916.csv",sep=""))
+resD<-read.csv(paste(to.dropbox,"/sCAFE_SharedFolder/sCAFE_Analyses/CedarCreek/e001/data/fieldD_timeXnitrate_pairwise_price_120916.csv",sep=""))
 
 resA$Field<-"A"
 resB$Field<-"B"
@@ -93,7 +93,6 @@ leap.zig.cafe(tmpA, loc.standardize=F, vectors=T,raw.points = F,
 ### Labeling the origin points for vectors:
 
 tmpA<-process.data.cafe(data=rs, group.vars=c('Field'), standardize=F)
-#leap.zig.cafe(tmpA, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field')
 
 # We can take the labels from the output of process.data()
 labs<-tmpA[[3]]
@@ -134,53 +133,54 @@ leap.zig.cafe(tmpA, loc.standardize=F, vectors=T,raw.points = F,
 
 ### Large test bed
 
+
 #### CAFE ####
-tmpC<-process.data.cafe(data=ppA[ppA$Field=='C' & ppA$NAdd.y==27.20,], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+tmpC<-process.data.cafe(data=rs, group.vars=NULL, standardize=F)
 leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = NULL,xlim=c(0,20))
 
 # Multiple N treatments with error bars
-tmpC<-process.data.cafe(data=ppA[ppA$Field=='C',], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+tmpC<-process.data.cafe(data=rs, group.vars=c('NAdd'), standardize=F)
 leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=T,group.vars = 'NAdd',xlim=c(0,20))
 
 # Multiple fields
-tmpC<-process.data.cafe(data=ppA[ppA$NAdd.y==27.20,], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+tmpC<-process.data.cafe(data=rs, group.vars=c('Field'), standardize=F)
 leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20))
 
 # Panels by N treatment, vectors by field
-tmpC<-process.data.cafe(data=ppA, group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
-leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20))+facet_wrap(~NAdd.y)
+tmpC<-process.data.cafe(data=rs, group.vars=c('NAdd','Field'), standardize=F)
+leap.zig.cafe(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20))+facet_wrap(~NAdd)
 
 
 #### BEF ####
-tmpC<-process.data.bef(data=ppA[ppA$Field=='C' & ppA$NAdd.y==27.20,], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+tmpC<-process.data.bef(data=rs, group.vars=NULL, standardize=F)
 leap.zig.bef(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = NULL,xlim=c(0,20))
 
 # Multiple N treatments with error bars
-tmpC<-process.data.bef(data=ppA[ppA$Field=='C',], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+tmpC<-process.data.bef(data=rs, group.vars=c('NAdd'), standardize=F)
 leap.zig.bef(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=T,group.vars = 'NAdd',xlim=c(0,20))
 
 # Multiple fields
-tmpC<-process.data.bef(data=ppA[ppA$NAdd.y==27.20,], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+tmpC<-process.data.bef(data=rs, group.vars=c('Field'), standardize=F)
 leap.zig.bef(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20))
 
 # Panels by N treatment, vectors by field
-tmpC<-process.data.bef(data=ppA, group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
-leap.zig.bef(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20))+facet_wrap(~NAdd.y)
+tmpC<-process.data.bef(data=rs, group.vars=c('NAdd','Field'), standardize=F)
+leap.zig.bef(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20))+facet_wrap(~NAdd)
 
 
 
 #### Price ####
-tmpC<-process.data.price(data=ppA[ppA$Field=='C' & ppA$NAdd.y==27.20,], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+tmpC<-process.data.price(data=rs, group.vars=NULL, standardize=F)
 leap.zig.price(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = NULL,xlim=c(0,20))
 
 # Multiple N treatments with error bars
-tmpC<-process.data.price(data=ppA[ppA$Field=='C',], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+tmpC<-process.data.price(data=rs, group.vars=c('NAdd'), standardize=F)
 leap.zig.price(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'NAdd',xlim=c(0,20))
 
 # Multiple fields
-tmpC<-process.data.price(data=ppA[ppA$NAdd.y==27.20,], group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
+tmpC<-process.data.price(data=rs, group.vars=c('Field'), standardize=F)
 leap.zig.price(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20))
 
 # Panels by N treatment, vectors by field
-tmpC<-process.data.price(data=ppA, group.vars=c('NAdd','NAdd.y','Field'), standardize=F)
-leap.zig.price(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20),ylim=c(-50,550))+facet_wrap(~NAdd.y)
+tmpC<-process.data.price(data=rs, group.vars=c('NAdd','Field'), standardize=F)
+leap.zig.price(tmpC, loc.standardize=F, vectors=T,raw.points = F,legend=F,error.bars=F,group.vars = 'Field',xlim=c(0,20),ylim=c(-50,550))+facet_wrap(~NAdd)
