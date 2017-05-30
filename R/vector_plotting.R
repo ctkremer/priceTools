@@ -538,9 +538,9 @@ leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=F
                            arrow=arrow(length=unit(0.2,"cm"), ends="last"), linetype=linetype)
   }
   
-  cols <- c(alpha('#0000ff'),alpha('#ff00ff'))
-  trcols <- c(alpha('#0000ff',0.1),alpha('#ff00ff',0.1))
-  
+  cols <- c(alpha('#008002'),alpha('#56F256'))
+  trcols <- c(alpha('#008002',0.1),alpha('#56F256',0.1))
+
   if(raw.points == FALSE & vectors == TRUE){
     lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=cols) +
                  guides(colour=guide_legend( override.aes=list(shape=c(NA,NA),linetype=c(1,1))))
@@ -672,8 +672,8 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
                              arrow=arrow(length=unit(0.2,"cm"), ends="last"), linetype=linetype)
   }
   
-  cols <- c(alpha('#ff0000'), alpha('#00ee00'), alpha('#900090')) 
-  trcols <- c(alpha('#ff0000',0.1), alpha('#00ee00',0.1), alpha('#900090',0.1))
+  cols <- c(alpha('#FE0000'), alpha('#0025FF'), alpha('#A01AE5')) 
+  trcols <- c(alpha('#FE0000',0.1), alpha('#0025FF',0.1), alpha('#A01AE5',0.1))
   
   if(raw.points==FALSE & vectors==TRUE){
     lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=cols) +
@@ -806,10 +806,11 @@ leap.zig.price <- function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.ba
                            arrow=arrow(length=unit(0.2,"cm"), ends="last"), linetype=linetype)
   }
   
-  cols <- c(alpha('#ff0000'), alpha('#800000'), alpha('#00ee00'), alpha('#009000'), alpha('#900090'))
-  trcols <- c(alpha('#ff0000',0.1), alpha('#800000',0.1), alpha('#00ee00',0.1), 
-              alpha('#009000',0.1), alpha('#900090',0.1))
-  
+  cols <- c(alpha('#DB0102'), alpha('#FF6500'), alpha('#001ECC'), 
+            alpha('#48C5E9'), alpha('#A01AE5'))
+  trcols <- c(alpha('#DB0102',0.1), alpha('#FF6500',0.1), alpha('#001ECC',0.1), 
+              alpha('#48C5E9',0.1), alpha('#A01AE5',0.1))
+    
   if(raw.points == FALSE & vectors == TRUE){
     lzp <- lzp + scale_color_manual("Component\n", drop=FALSE, values=cols) +
                  guides(colour=guide_legend(override.aes=list(shape=c(NA,NA,NA,NA,NA),
