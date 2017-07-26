@@ -133,7 +133,12 @@ jaccard.single<-function(sps,func,commX){
   comm<-rbind(commX,commY)
   
   comm<-reshape2::dcast(comm,ID~sps,value.var='func',fill = 0)
-  vd<-try(vegdist(comm[,-1],"jaccard"))
+  
+  if(ncol(comm)==2 & comm[1,2]==comm[2,2]){
+    vd<-list(0) # if communities have 1 species, and are identical, J = 0
+  }else{
+    vd<-try(vegdist(comm[,-1],"jaccard"))
+  }
   
   if(class(vd)=='try-error'){
     vd<-list(NA)
