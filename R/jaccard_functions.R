@@ -27,6 +27,20 @@
 #' 
 #' @examples 
 #' 
+#' set.seed(36)
+#' cm1<-data.frame(sps=LETTERS[seq(1,6)],func=rpois(6,lambda = 2))
+#' 
+#' # Data frame containing multiple communities we want to compare with cm1
+#' cms<-data.frame(comm.id=sort(rep(seq(1,3),6)),
+#'                 species=rep(LETTERS[seq(1,6)],3),
+#'                 func=rpois(6*3,lambda = 2))
+#' cms<-group_by(cms,comm.id)
+#' groups(cms)
+#' 
+#' x<-cms
+#' pairwise.jaccard(cms,species='species',func='func')
+#' 
+#' price.part.column(sps=cm1$sps,func=cm1$func,dat=cms)
 #' # write example
 #' 
 #' @export
@@ -111,6 +125,8 @@ jaccard.column<-function(sps,func,dat){
   res<-dat %>% group_by_(.dots=gps) %>% do(jaccard.single(.$species,.$func,tmpX))  
   
   options(dplyr.show_progress=T)  # turn progress bar back on (so it's visible for high-level do command)
+  
+  res<-ungroup(res)  #remove grouping variable to avoid problems when combining these results in pairwise.jaccard
   
   res
 }
