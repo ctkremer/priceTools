@@ -27,12 +27,12 @@ expit<-function(x){
 
 #' Asymptotic 95 percent confidence interval.
 #'
-#' This function computes the upper or lower 95 percent CI based on an asymptotic 
+#' This function computes the upper or lower 95% confidence interval based on an asymptotic 
 #' approximation and assumption of normality.
 #'
 #' @param x  A list of numeric values
 #' 
-#' @param type Upper ("upr") or lower ("lwr") CI boundary
+#' @param type Upper ("upr") or lower ("lwr") confidence interval boundary
 #' 
 #' @return Confidence interval value
 #' 
@@ -442,9 +442,7 @@ price.part<-function(comm,quiet=F,sps.level=F){
 }
 
 
-#########
-
-### The next 3 functions support automated calculations of price components for
+# The next 3 functions support automated calculations of price components for
 # all pairwise community comparisons
 
 
@@ -464,6 +462,13 @@ price.part<-function(comm,quiet=F,sps.level=F){
 #' Price equation components.
 #' 
 #' @examples 
+#' 
+#' # Generate mock community data:
+#' set.seed(36)
+#' cm1<-data.frame(sps=LETTERS[seq(1,6)],func=rpois(6,lambda = 2))
+#' cm2<-data.frame(sps=LETTERS[seq(1,6)],func=rpois(6,lambda = 2))
+#' 
+#' price.part.single(sps=cm2$sps,func=cm2$func,commX=cm1)
 #' 
 #' # write example
 #' 
