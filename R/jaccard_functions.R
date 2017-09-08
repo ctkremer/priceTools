@@ -28,20 +28,17 @@
 #' @examples 
 #' 
 #' set.seed(36)
-#' cm1<-data.frame(sps=LETTERS[seq(1,6)],func=rpois(6,lambda = 2))
 #' 
-#' # Data frame containing multiple communities we want to compare with cm1
+#' # Data frame containing multiple communities we want to compare
 #' cms<-data.frame(comm.id=sort(rep(seq(1,3),6)),
 #'                 species=rep(LETTERS[seq(1,6)],3),
 #'                 func=rpois(6*3,lambda = 2))
+#'                 
+#' #Identify one (or more) grouping columns
 #' cms<-group_by(cms,comm.id)
-#' groups(cms)
 #' 
-#' x<-cms
+#' # Perform pairwise comparisons of all communities in cms identified by comm.id
 #' pairwise.jaccard(cms,species='species',func='func')
-#' 
-#' price.part.column(sps=cm1$sps,func=cm1$func,dat=cms)
-#' # write example
 #' 
 #' @export
 #' @import tidyr
@@ -110,6 +107,7 @@ pairwise.jaccard<-function(x,species='Species',func='Function'){
 #'                 func=rpois(6*3,lambda = 2))
 #' cms<-group_by(cms,comm.id)
 #' 
+#' # Compare species/functions of cm1 to all communities in cms, individually
 #' jaccard.column(sps=cm1$sps,func=cm1$func,dat=cms)
 #'
 jaccard.column<-function(sps,func,dat){

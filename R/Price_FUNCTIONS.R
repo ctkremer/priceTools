@@ -510,6 +510,7 @@ price.part.single<-function(sps,func,commX){
 #'                 func=rpois(6*3,lambda = 2))
 #' cms<-group_by(cms,comm.id)
 #' 
+#' # Compare species/functions of cm1 to all communities in cms, individually
 #' price.part.column(sps=cm1$sps,func=cm1$func,dat=cms)
 #'
 price.part.column<-function(sps, func, dat){
@@ -525,7 +526,9 @@ price.part.column<-function(sps, func, dat){
   res <- dat %>% group_by_(.dots=gps) %>% do(price.part.single(.$species,.$func,tmpX))
 
   # turn progress bar back on (so it's visible for high-level do command)
-  options(dplyr.show_progress=T)  
+  options(dplyr.show_progress=T) 
+  
+  res<-ungroup(res)  #remove grouping variable to avoid problems when combining these results in pairwise.price
   
   return(res)
 }
@@ -549,7 +552,18 @@ price.part.column<-function(sps, func, dat){
 #' 
 #' @examples 
 #' 
-#' # write example
+#' set.seed(36)
+#' 
+#' # Data frame containing multiple communities we want to compare
+#' cms<-data.frame(comm.id=sort(rep(seq(1,3),6)),
+#'                 species=rep(LETTERS[seq(1,6)],3),
+#'                 func=rpois(6*3,lambda = 2))
+#'                 
+#' #Identify one (or more) grouping columns
+#' cms<-group_by(cms,comm.id)
+#' 
+#' # Perform pairwise comparisons of all communities in cms identified by comm.id
+#' pairwise.price(cms,species='species',func='func')
 #' 
 #' @export
 pairwise.price<-function(x,species='Species',func='Function'){
