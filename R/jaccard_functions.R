@@ -79,14 +79,24 @@ pairwise.jaccard<-function(x,species='Species',func='Function'){
 #' @param func A numerical vector of species' ecosystem functions in the reference
 #'  community
 #' @param dat A grouped data frame of species' names and ecosystem functions, which 
-#'  must contain at least one grouping variable, as created by dplyr.
+#'  must contain at least one grouping variable, as created by dplyr's function group_by(). 
+#'  Additionally, the species and function columns must be named 'species' and 'func', respectively.
 #' 
 #' @return This function returns a data set of Jaccard indices for each community 
-#' (defined by the grouping variables) compared against the reference community
+#' (uniquely identified by the grouping variable(s) of dat) compared against the reference community
 #' 
 #' @examples 
 #' 
-#' # write example
+#' set.seed(36)
+#' cm1<-data.frame(sps=LETTERS[seq(1,6)],func=rpois(6,lambda = 2))
+#' 
+#' # Data frame containing multiple communities we want to compare with cm1
+#' cms<-data.frame(comm.id=sort(rep(seq(1,3),6)),
+#'                 species=rep(LETTERS[seq(1,6)],3),
+#'                 func=rpois(6*3,lambda = 2))
+#' cms<-group_by(cms,comm.id)
+#' 
+#' jaccard.column(sps=cm1$sps,func=cm1$func,dat=cms)
 #'
 jaccard.column<-function(sps,func,dat){
   gps<-groups(dat)      # snag the grouping variables
