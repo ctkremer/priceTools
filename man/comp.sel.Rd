@@ -33,7 +33,6 @@ set.seed(1)
 d2<-data.frame(sps=c('A','B','C','D','E'),mono=1+runif(5),mixed=1+runif(5,min=0.2))
 
 comp.sel(d2,even.seeding = T)
-dist.mat.size(200)
 
 }
 

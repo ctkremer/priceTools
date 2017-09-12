@@ -9,13 +9,13 @@ meanCI(x, type)
 \arguments{
 \item{x}{A list of numeric values}
 
-\item{type}{Upper ("upr") or lower ("lwr") CI boundary}
+\item{type}{Upper ("upr") or lower ("lwr") confidence interval boundary}
 }
 \value{
 Confidence interval value
 }
 \description{
-This function computes the upper or lower 95 percent CI based on an asymptotic 
+This function computes the upper or lower 95% confidence interval based on an asymptotic 
 approximation and assumption of normality.
 }
 \examples{

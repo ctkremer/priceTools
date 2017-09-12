@@ -26,7 +26,13 @@ single species.
 }
 \examples{
 
-# write example
+# Generate mock community data:
+set.seed(36)
+cm1<-data.frame(sps=LETTERS[seq(1,6)],func=rpois(6,lambda = 2))
+cm2<-data.frame(sps=LETTERS[seq(1,6)],func=rpois(6,lambda = 2))
+
+# Compare community 2's species and function lists to community 1
+jaccard.single(sps=cm2$sps,func=cm2$func,commX=cm1)
 
 }
 

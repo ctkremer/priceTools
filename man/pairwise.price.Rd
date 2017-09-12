@@ -27,7 +27,18 @@ grouping variable(s).
 }
 \examples{
 
-# write example
+set.seed(36)
+
+# Data frame containing multiple communities we want to compare
+cms<-data.frame(comm.id=sort(rep(seq(1,3),6)),
+                species=rep(LETTERS[seq(1,6)],3),
+                func=rpois(6*3,lambda = 2))
+                
+#Identify one (or more) grouping columns
+cms<-group_by(cms,comm.id)
+
+# Perform pairwise comparisons of all communities in cms identified by comm.id
+pairwise.price(cms,species='species',func='func')
 
 }
 

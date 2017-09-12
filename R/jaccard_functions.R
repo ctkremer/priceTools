@@ -1,12 +1,12 @@
 
 
-###############  Jaccard Functions ##################
+#~~~~~~~~~~~~~~~~ Jaccard Functions  ~~~~~~~~~~~~~~~~#
 
 ### These functions support automated calculations of Jaccard similarity for all pairs of communities 
 
 # NOTE: there is almost certainly a faster way to do this using the vegdist() function inside the vegan package - this approach produces results that are correctly formatted for comparison with the price partition components, however, which counts for something...
 
-#####################################################
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 
 #' Calculate the Jaccard index for all possible community pairs

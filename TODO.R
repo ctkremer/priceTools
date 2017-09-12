@@ -19,3 +19,5 @@
 #     * Add nonparametric tests to `test.partitions()`
 #     * Extend tools & existing code stubs to account for more complex experimental designs, including multiple treatments, interaction effects, etc.
 
+# For test.partitions,
+#  - significance tests of slope variables under 'cafe' tests is busted; for now the slope variables are simply excluded.

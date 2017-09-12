@@ -23,7 +23,20 @@ tests on Price analyses.
 }
 \examples{
 
-# write example
+# Data frame containing multiple communities we want to compare
+set.seed(36)
+cms<-data.frame(comm.id=sort(rep(seq(1,3),6)),
+                species=rep(LETTERS[seq(1,6)],3),
+                func=rpois(6*3,lambda = 2))
+                
+#Identify a grouping columns
+cms<-group_by(cms,comm.id)
+
+# Perform pairwise comparisons of all communities in cms identified by comm.id
+pp<-pairwise.price(cms,species='species',func='func')
+
+dm<-get.dist.mats(pp)
+dm
 
 }
 

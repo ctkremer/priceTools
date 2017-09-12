@@ -43,8 +43,6 @@ cov2<-function(x,y) mean((x-mean(x))*(y-mean(y)))
 #' d2<-data.frame(sps=c('A','B','C','D','E'),mono=1+runif(5),mixed=1+runif(5,min=0.2))
 #' 
 #' comp.sel(d2,even.seeding = T)
-
-#' dist.mat.size(200)
 #' 
 #' @export
 comp.sel<-function(data,even.seeding=FALSE){

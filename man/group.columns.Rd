@@ -23,7 +23,36 @@ pairwise price calculations.
 }
 \examples{
 
-# write example
+# Data frame containing multiple communities we want to compare
+set.seed(36)
+cms1<-data.frame(comm.id=sort(rep(seq(1,3),6)),
+                species=rep(LETTERS[seq(1,6)],3),
+                func=rpois(6*3,lambda = 2))
+cms2<-data.frame(comm.id=sort(rep(seq(1,3),6)),
+                species=rep(LETTERS[seq(1,6)],3),
+                func=rpois(6*3,lambda = 2))
+cms1$site<-'site1'
+cms2$site<-'site2'
+cms<-rbind(cms1,cms2)
+                                
+#Identify one grouping columns
+cmsA<-group_by(cms,comm.id)
+
+# Perform pairwise comparisons of all communities in cms identified by comm.id
+ppA<-pairwise.price(cmsA,species='species',func='func')
+
+# Process results using group.columns
+group.columns(ppA,gps='comm.id')
+group.columns(ppA,gps='comm.id',drop=T)
+
+# Or with two grouping columns:
+cmsB<-group_by(cms,comm.id,site)
+ppB<-pairwise.price(cmsB,species='species',func='func')
+
+# Process results using group.columns
+group.columns(ppB,gps=c('comm.id'))
+group.columns(ppB,gps=c('comm.id','site'))
+group.columns(ppB,gps=c('comm.id','site'),drop=T)
 
 }
 

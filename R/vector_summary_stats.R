@@ -138,7 +138,7 @@ trt.mean <- function(x, y, ind){
 # - control-control case
 # - price components for pairs of communities
 
-# TO DO - significance tests of slope variables under 'cafe' tests is busted; for now the slope variables are simply excluded.
+
 #' Run a set of significance tests on vector plot components.
 #'
 #' This functions tests the significance of the changes in richness in function associated with the

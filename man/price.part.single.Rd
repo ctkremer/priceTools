@@ -25,7 +25,12 @@ that automate the pairwise comparison of many communities.
 }
 \examples{
 
-# write example
+# Generate mock community data:
+set.seed(36)
+cm1<-data.frame(sps=LETTERS[seq(1,6)],func=rpois(6,lambda = 2))
+cm2<-data.frame(sps=LETTERS[seq(1,6)],func=rpois(6,lambda = 2))
+
+price.part.single(sps=cm2$sps,func=cm2$func,commX=cm1)
 
 }
 
