@@ -21,3 +21,7 @@
 
 # For test.partitions,
 #  - significance tests of slope variables under 'cafe' tests is busted; for now the slope variables are simply excluded.
+#
+#  - Change syntax to SIE rather than SCE
+#  - leap.zip(type='both') appears to be busted, "Error in leap.zig.both(tmp, loc.standardize = standardize, group.vars = group.vars,  : unused argument (group.vars = group.vars)"
+
