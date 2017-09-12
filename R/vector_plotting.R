@@ -9,10 +9,10 @@
 #' terms needed in CAFE, BEF, or Price component vector plots.
 #'
 #' @param data  Pairwise Price data
-#' @param group.vars A vector of grouping variables, if any.
-#' @param standardize Should ecosystem function values be standardized against baseline
+#' @param group.vars A vector of grouping variables, if any
+#' @param standardize Should ecosystem function values be standardized against baseline? T/F
 #' 
-#' @return A list of three data sets with different levels of aggregation used in subsequent vector plots.
+#' @return A list of three data sets with different levels of aggregation used in subsequent vector plots. Although still exported, this function has become essentially an internal function, called by members of the leap.zig family of functions, and may rarely be useful to call directly.
 #' 
 #' @examples
 #' 
@@ -36,7 +36,7 @@
 #' 
 #' processed<-process.data.bef(data=pp,group.vars='comm.id')
 #' processed<-process.data.price(data=pp,group.vars='comm.id')
-#'   
+#'    
 #' @export
 #' @import dplyr
 process.data.cafe<-function(data, group.vars=NULL, standardize=TRUE){
@@ -302,7 +302,77 @@ process.data.price<-function(data,group.vars=NULL,standardize=TRUE){
 #' @examples
 #' 
 #' # write one
+#' head(biomass)
+#' head(cedarcreek)
+#' leap.zig(dat1,type='cafe',main="Enrichment \n(0 vs. 27.2)")
+#' data.frame(cedarcreek)
+#' 
+#' #Identify one grouping columns
+#' cc2<-group_by(cedarcreek,NTrt,NAdd,Plot)
+#' 
+#' # Perform pairwise comparisons of all communities in cms identified by comm.id
+#' # (takes ~30 sec)
+#' pp<-pairwise.price(cc2,species='Species',func='Biomass')
+#' 
+#' # Organize/format the results, and pull out a subset using NTrt=1 as the control site
+#' pp<-group.columns(pp,gps=c('NTrt','NAdd'))
+#' pp<-pp[pp$NTrt.x==1,]
+#' dat1<-pp[pp$NAdd %in% c('0 27.2'),]
+#' dat1.ctrl<-pp[pp$NAdd %in% c('0 0'),]
+#' 
+#' # Demonstrate vector plotting:
+#' leap.zig(dat1,type='cafe')
 #'
+#' # the plots returned are ggplot objects, so additional design specifications can be added on:
+#' leap.zig(dat1,type='cafe')+
+#'   ggtitle('Enrichment \n(0 vs. 27.2)')
+#' 
+#' # control plot window
+#' leap.zig(dat1,type='cafe',xlim=c(3,18),ylim=c(-100,700))
+#' 
+#' # turn on errorbars associated with vector endpoints
+#' leap.zig(dat1,type='cafe',xlim=c(3,18),ylim=c(-100,700),error.bars=T)
+#' 
+#' # turn on/off standardization of vector magnitude (taken as % change relative to baseline)
+#' leap.zig(dat1,type='cafe',standardize=F)
+#' 
+#' # make plot without showing individual points:
+#' leap.zig(dat1,type='cafe',standardize=F,raw.points=F)
+#' 
+#' # Use other styles of vector arrangements:
+#' leap.zig(dat1,type='bef',standardize=F,raw.points=F)
+#' leap.zig(dat1,type='price',standardize=F,raw.points=F)
+#' 
+#' # turn legend off
+#' leap.zig(dat1,type='price',standardize=F,raw.points=F,legend=F)
+#' 
+#' # modify line type (BUSTED!!!)
+#' # leap.zig(dat1,type='price',standardize=F,raw.points=F,legend=F,linetype=2)
+#' 
+#' # combine multiple plots in separate panels 
+#' # (note: faceting currently doesn't work with leap.zig)
+#' s1 <- leap.zig(dat1,type='cafe', xlim=c(3,18),ylim=c(-100,700),
+#'                error.bars=T,vectors=T,raw.points = F,legend=F)
+#' s2 <- leap.zig(dat1,type='bef', xlim=c(3,18),ylim=c(-100,700),
+#'                error.bars=T,vectors=T,raw.points = F,legend=F)
+#' 
+#' library(gridExtra)
+#' grid.arrange(s1,s2,nrow=1)
+#' 
+#' # or on top of each other
+#' leap.zig(dat1,type='both', xlim=c(3,18),ylim=c(-100,700),
+#'                error.bars=F,vectors=T,raw.points = F,legend=T)
+#'                
+#'                add=T,old.plot=s1)
+#' 
+#' s1 <- leap.zig(dat1,type='cafe', xlim=c(3,18),ylim=c(-100,700),
+#'                error.bars=F,vectors=T,raw.points = F,legend=F,linetype=2)
+#' leap.zig(dat1.ctrl,type='cafe', xlim=c(3,18),ylim=c(-100,700),
+#'                error.bars=F,vectors=T,raw.points = F,legend=F,
+#'                add=T,old.plot=s1)
+
+#' 
+#' 
 #' @export
 leap.zig<-function(data, type="cafe", group.vars=NULL, standardize=TRUE, ...){
   
