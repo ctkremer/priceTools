@@ -301,11 +301,8 @@ process.data.price<-function(data,group.vars=NULL,standardize=TRUE){
 #' 
 #' @examples
 #' 
-#' # write one
-#' head(biomass)
+#' data(cedarcreek)
 #' head(cedarcreek)
-#' leap.zig(dat1,type='cafe',main="Enrichment \n(0 vs. 27.2)")
-#' data.frame(cedarcreek)
 #' 
 #' #Identify one grouping columns
 #' cc2<-group_by(cedarcreek,NTrt,NAdd,Plot)
@@ -346,9 +343,6 @@ process.data.price<-function(data,group.vars=NULL,standardize=TRUE){
 #' # turn legend off
 #' leap.zig(dat1,type='price',standardize=F,raw.points=F,legend=F)
 #' 
-#' # modify line type (BUSTED!!!)
-#' # leap.zig(dat1,type='price',standardize=F,raw.points=F,legend=F,linetype=2)
-#' 
 #' # combine multiple plots in separate panels 
 #' # (note: faceting currently doesn't work with leap.zig)
 #' s1 <- leap.zig(dat1,type='cafe', xlim=c(3,18),ylim=c(-100,700),
@@ -366,7 +360,7 @@ process.data.price<-function(data,group.vars=NULL,standardize=TRUE){
 #'                add=T,old.plot=s1)
 #' 
 #' s1 <- leap.zig(dat1,type='cafe', xlim=c(3,18),ylim=c(-100,700),
-#'                error.bars=F,vectors=T,raw.points = F,legend=F,linetype=2)
+#'                error.bars=F,vectors=T,raw.points = F,legend=F)
 #' leap.zig(dat1.ctrl,type='cafe', xlim=c(3,18),ylim=c(-100,700),
 #'                error.bars=F,vectors=T,raw.points = F,legend=F,
 #'                add=T,old.plot=s1)
@@ -421,7 +415,6 @@ leap.zig<-function(data, type="cafe", group.vars=NULL, standardize=TRUE, ...){
 #' @param vectors     Plot averaged vectors
 #' @param legend      Show legend
 #' @param old.plot    ggplot object from previous \code{leap.zig()} call
-#' @param linetype    Type of line to draw for vector
 #' @param add         Add new plot to object provided in old.plot option
 #' 
 #' @return A ggplot object.
@@ -434,7 +427,7 @@ leap.zig<-function(data, type="cafe", group.vars=NULL, standardize=TRUE, ...){
 #' @import ggplot2
 leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE,
                         raw.points=TRUE, vectors=TRUE,
-                        legend=TRUE, old.plot=NA, linetype=1, add=FALSE){
+                        legend=TRUE, old.plot=NA, add=FALSE){
 
   # Trim out un-needed factor levels
   if(raw.points == FALSE & vectors == TRUE){
@@ -457,15 +450,15 @@ leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
   # Add error bars
   if(error.bars){
     lzp <- lzp + geom_errorbarh(data=tmp[[2]], aes(xmin=x.qt.lw, xmax=x.qt.up, x=mean.x, y=mean.y),
-                                colour='gray', linetype=linetype) +
+                                colour='gray') +
                  geom_errorbar(data=tmp[[2]], aes(ymin=y.qt.lw, ymax=y.qt.up, x=mean.x, y=mean.y),
-                               width=1, colour='gray', linetype=linetype)
+                               width=1, colour='gray')
   }
   
   # Add vectors
   if(vectors){
     lzp <- lzp + geom_path(data=tmp[[3]], aes(colour=variable, x=mean.x, y=mean.y),
-                           arrow=arrow(length=unit(0.2,"cm"), ends="first"), linetype=linetype)
+                           arrow=arrow(length=unit(0.2,"cm"), ends="first"))
   }
   
   cols <- c(alpha('#d95f02'),alpha('#1b9e77'),alpha('#7570b3'),alpha('#7fcdbb'),alpha('#e34a33'))
@@ -539,7 +532,6 @@ leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
 #' @param vectors     Plot averaged vectors
 #' @param legend      Show legend
 #' @param old.plot    ggplot object from previous \code{leap.zig()} call
-#' @param linetype    Type of line to draw for vector
 #' @param add         Add new plot to object provided in old.plot option
 #' 
 #' @return A ggplot object.
@@ -552,7 +544,7 @@ leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
 #' @import ggplot2
 leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE,
                        raw.points=TRUE, vectors=TRUE, group.vars=NULL,
-                       legend=TRUE, old.plot=NA, linetype=1, add=FALSE){
+                       legend=TRUE, old.plot=NA, add=FALSE){
 
   # rename to simplify code:
   tmp3<-tmp[[3]]
@@ -588,15 +580,15 @@ leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=F
   # Add error bars.
   if(error.bars){
     lzp <- lzp + geom_errorbarh(data=tmp[[2]], aes(xmin=x.qt.lw, xmax=x.qt.up, x=mean.x, y=mean.y),
-                                height=15, colour='gray', linetype=linetype)+
+                                height=15, colour='gray')+
                  geom_errorbar(data=tmp[[2]], aes(ymin=y.qt.lw, ymax=y.qt.up, x=mean.x),
-                                width=1, colour='gray', linetype=linetype)
+                                width=1, colour='gray')
   }
   
   # Add vectors
   if(vectors){
     lzp <- lzp + geom_path(data=tmp3, aes(colour=variable, x=mean.x, y=mean.y, group=gps),
-                           arrow=arrow(length=unit(0.2,"cm"), ends="last"), linetype=linetype)
+                           arrow=arrow(length=unit(0.2,"cm"), ends="last"))
   }
   
   cols <- c(alpha('#008002'),alpha('#56F256'))
@@ -672,7 +664,6 @@ leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=F
 #' @param vectors     Plot averaged vectors
 #' @param legend      Show legend
 #' @param old.plot    ggplot object from previous \code{leap.zig()} call
-#' @param linetype    Type of line to draw for vector
 #' @param add         Add new plot to object provided in old.plot option
 #' 
 #' @return A ggplot object.
@@ -685,7 +676,7 @@ leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=F
 #' @import ggplot2
 leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE,
                         raw.points=TRUE, vectors=TRUE, group.vars=NULL,
-                        legend=TRUE, old.plot=NA, linetype=1, add=FALSE){
+                        legend=TRUE, old.plot=NA, add=FALSE){
 
   # rename to simplify code:
   tmp3<-tmp[[3]]
@@ -722,15 +713,15 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
   # Add error bars.
   if(error.bars){
     lzp <- lzp + geom_errorbarh(data=tmp[[2]], aes(xmin=x.qt.lw, xmax=x.qt.up, x=mean.x, y=mean.y),
-                               height=15, colour='gray', linetype=linetype)+
+                               height=15, colour='gray')+
                  geom_errorbar(data=tmp[[2]], aes(ymin=y.qt.lw, ymax=y.qt.up, x=mean.x),
-                               width=1, colour='gray', linetype=linetype)
+                               width=1, colour='gray')
   }
 
   # Add vectors
   if(vectors){
       lzp <- lzp + geom_path(data=tmp3, aes(colour=variable, x=mean.x, y=mean.y, group=gps),
-                             arrow=arrow(length=unit(0.2,"cm"), ends="last"), linetype=linetype)
+                             arrow=arrow(length=unit(0.2,"cm"), ends="last"))
   }
   
   cols <- c(alpha('#FE0000'), alpha('#0025FF'), alpha('#A01AE5')) 
@@ -805,7 +796,6 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
 #' @param vectors     Plot averaged vectors
 #' @param legend      Show legend
 #' @param old.plot    ggplot object from previous \code{leap.zig()} call
-#' @param linetype    Type of line to draw for vector
 #' @param add         Add new plot to object provided in old.plot option
 #' 
 #' @return A ggplot object.
@@ -818,7 +808,7 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
 #' @import ggplot2
 leap.zig.price <- function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE, 
                             raw.points=TRUE, vectors=TRUE, group.vars=NULL,
-                            legend=TRUE, old.plot=NA, linetype=1, add=FALSE){
+                            legend=TRUE, old.plot=NA, add=FALSE){
   
   # rename to simplify code:
   tmp3<-tmp[[3]]
@@ -856,15 +846,15 @@ leap.zig.price <- function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.ba
   # Add error bars.
   if(error.bars){
     lzp <- lzp + geom_errorbarh(data=tmp[[2]], aes(xmin=x.qt.lw, xmax=x.qt.up, x=mean.x, y=mean.y),
-                                height=15, colour='gray', linetype=linetype)+
+                                height=15, colour='gray')+
                  geom_errorbar(data=tmp[[2]], aes(ymin=y.qt.lw, ymax=y.qt.up, x=mean.x),
-                                width=1, colour='gray', linetype=linetype)
+                                width=1, colour='gray')
   }
   
   # Add vectors
   if(vectors){
     lzp <- lzp + geom_path(data=tmp3, aes(colour=variable, x=mean.x, y=mean.y, group=gps),
-                           arrow=arrow(length=unit(0.2,"cm"), ends="last"), linetype=linetype)
+                           arrow=arrow(length=unit(0.2,"cm"), ends="last"))
   }
   
   cols <- c(alpha('#DB0102'), alpha('#FF6500'), alpha('#001ECC'), 
