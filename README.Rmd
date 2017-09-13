@@ -41,3 +41,5 @@ This package provides tools for:
 1. Graphically summarizing the results of Price comparisons among communities as vector diagrams.
 
 1. Performing statistical/significance tests on the components produced by Price comparisons.
+
+Complete details can be found in the associated vignettes for this package.
