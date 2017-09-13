@@ -221,7 +221,7 @@ dist.mat.size<-function(n){
 #' community pairs, this produces a distance matrix, which can be used to perform multivariate
 #' tests on Price analyses.
 #' 
-#' @param x  A data frame, resulting from FUNCTION
+#' @param x  A data frame, resulting from \code{pairwise.price}
 #' 
 #' @return This function returns a list of two distance matrices:
 #'  \item{dst5}{A distance matrix calculated based on the full 5-part Price partition}
@@ -261,7 +261,7 @@ get.dist.mats<-function(x){
     return(NA)
   }else{
     # 5-part partition
-    dst5<-as.matrix(dist(x[,c('SRE.L','SRE.G','SCE.L','SCE.G','CDE')]))
+    dst5<-as.matrix(dist(x[,c('SRE.L','SRE.G','SIE.L','SIE.G','CDE')]))
     
     # for 3-part partition
     dst3<-as.matrix(dist(x[,c('SL','SG','CDE')]))
@@ -352,24 +352,24 @@ group.columns<-function(x,gps,drop=F){
 #'
 #' Extra thoughts on how the interpret the Price equation partitions, which may get relocated into a vignette. 
 #' 
-#' Comments on SCE.L. If a species x' from x is lost in y, SCE.L will increase if x' 
-#' is less productive on average, and SCE.L will decrease if x' is more productive 
-#' than average. If a species x' from x is NOT lost in y, SCE.L will increase if x' 
-#' is more productive on average, and SCE.L will decrease if x' is less productive 
-#' than average. Overall, high/positive values of SCE.L mean that weak species were 
-#' lost and good species were retained. Noteably, SCE.L will not be affected by new
+#' Comments on SIE.L. If a species x' from x is lost in y, SIE.L will increase if x' 
+#' is less productive on average, and SIE.L will decrease if x' is more productive 
+#' than average. If a species x' from x is NOT lost in y, SIE.L will increase if x' 
+#' is more productive on average, and SIE.L will decrease if x' is less productive 
+#' than average. Overall, high/positive values of SIE.L mean that weak species were 
+#' lost and good species were retained. Noteably, SIE.L will not be affected by new
 #' species that y gains relative to what is shared or lost. Average species have 
-#' little effect on the value of SCE.L. If either barely any or almost all species 
+#' little effect on the value of SIE.L. If either barely any or almost all species 
 #' occur in common between communities x and y, then the few species that are kept 
-#' (or lost) will have a particularly large influence on the value of SCE.L. Overall, 
-#' SCE.L will probably be smaller in this case, and greatly affected by whether the
+#' (or lost) will have a particularly large influence on the value of SIE.L. Overall, 
+#' SIE.L will probably be smaller in this case, and greatly affected by whether the
 #' species lost/gained are more or less productive.
 #' 
-#' Comments on SCE.G. A less productive than average species in y (-1) makes a negative
-#' contribution to SCE.G if it is NOT in community x, and a positive contribution to 
-#' SCE.G if it is in community x. A more productive than average species in y (+1) 
-#' makes a negative contribution to SCE.G if it is in x, and a positive contribution 
-#' to SCE.G if it does NOT occur in community x. A positive SCE.G occurs when less
+#' Comments on SIE.G. A less productive than average species in y (-1) makes a negative
+#' contribution to SIE.G if it is NOT in community x, and a positive contribution to 
+#' SIE.G if it is in community x. A more productive than average species in y (+1) 
+#' makes a negative contribution to SIE.G if it is in x, and a positive contribution 
+#' to SIE.G if it does NOT occur in community x. A positive SIE.G occurs when less
 #' productive than average members of y also occured in x, and more productive than
 #' average species in y do not occur in x.
 #'
@@ -383,13 +383,13 @@ group.columns<-function(x,gps,drop=F){
 #' @return If \code{sps.level=FALSE}, a data frame of Price equation components.
 #'    \item{SRE.L}{species richness effect (loss of species)}
 #'    \item{SRE.G}{species richness effect (gain of species)}
-#'    \item{SCE.L}{species composition effect (loss of species)}
-#'    \item{SCE.G}{species composition effect (gain of species)}
+#'    \item{SIE.L}{species identity effect (loss of species)}
+#'    \item{SIE.G}{species identity effect (gain of species)}
 #'    \item{CDE}{context dependent effect}
-#'    \item{SL}{sum of SRE.L and SCE.L}
-#'    \item{SG}{sum of SRE.G and SCE.G}
+#'    \item{SL}{sum of SRE.L and SIE.L}
+#'    \item{SG}{sum of SRE.G and SIE.G}
 #'    \item{SR}{sum of SRE.L and SRE.G}
-#'    \item{CE}{sum of SCE.G, SCE.L, and CDE}
+#'    \item{CE}{sum of SIE.G, SIE.L, and CDE}
 #'    \item{x.func}{Total function in community X}
 #'    \item{y.func}{Total function in community Y}
 #'    \item{x.rich}{Number of species in community X}
@@ -438,15 +438,15 @@ price.part<-function(comm,quiet=F,sps.level=F){
   SRE.G.list <- data.frame(species=comm$species,SRE.G.list)
   SRE.G <- sum(SRE.G.list[,2])
 
-  # SCE.L computation
-  SCE.L.list <- (comm$func.x[comm$xvec==1]-zbarx)*(comm$wvec[comm$xvec==1]-wbarx)
-  SCE.L.list <- data.frame(species=comm$species[comm$xvec==1],SCE.L.list)
-  SCE.L <- sum(SCE.L.list[,2])
+  # SIE.L computation
+  SIE.L.list <- (comm$func.x[comm$xvec==1]-zbarx)*(comm$wvec[comm$xvec==1]-wbarx)
+  SIE.L.list <- data.frame(species=comm$species[comm$xvec==1],SIE.L.list)
+  SIE.L <- sum(SIE.L.list[,2])
 
-  # SCE.G computation
-  SCE.G.list <- -1*(comm$func.y[comm$yvec==1]-zbary)*(comm$wvec[comm$yvec==1]-wbary)
-  SCE.G.list<- data.frame(species=comm$species[comm$yvec==1],SCE.G.list)
-  SCE.G<- sum(SCE.G.list[,2])
+  # SIE.G computation
+  SIE.G.list <- -1*(comm$func.y[comm$yvec==1]-zbary)*(comm$wvec[comm$yvec==1]-wbary)
+  SIE.G.list<- data.frame(species=comm$species[comm$yvec==1],SIE.G.list)
+  SIE.G<- sum(SIE.G.list[,2])
 
   # Total change in function due to changes in function of species shared by communities.
   CDE.list <- comm$func.y[comm$wvec==1]-comm$func.x[comm$wvec==1]
@@ -455,15 +455,15 @@ price.part<-function(comm,quiet=F,sps.level=F){
 
   # combine pieces:
   pp.list <- merge(SRE.G.list,SRE.L.list,all=T)
-  pp.list <- merge(pp.list,SCE.L.list,all.x = T)
-  pp.list <- merge(pp.list,SCE.G.list,all.x = T)
+  pp.list <- merge(pp.list,SIE.L.list,all.x = T)
+  pp.list <- merge(pp.list,SIE.G.list,all.x = T)
   pp.list <- merge(pp.list,CDE.list,all.x = T)
   
   # additional diagnostic output:
-  SL <- SRE.L+SCE.L
-  SG <- SRE.G+SCE.G
+  SL <- SRE.L+SIE.L
+  SG <- SRE.G+SIE.G
   SR <- SRE.L+SRE.G
-  CE <- SCE.L+SCE.G+CDE
+  CE <- SIE.L+SIE.G+CDE
   x.func <- totx
   y.func <- toty
   x.rich <- sx
@@ -471,8 +471,8 @@ price.part<-function(comm,quiet=F,sps.level=F){
   c.rich <- sc
   
   # structure output:
-  pp <- c(SRE.L,SRE.G,SCE.L,SCE.G,CDE,SL,SG,SR,CE,x.func,y.func,x.rich,y.rich,c.rich)
-  names(pp) <- c("SRE.L","SRE.G","SCE.L","SCE.G","CDE",
+  pp <- c(SRE.L,SRE.G,SIE.L,SIE.G,CDE,SL,SG,SR,CE,x.func,y.func,x.rich,y.rich,c.rich)
+  names(pp) <- c("SRE.L","SRE.G","SIE.L","SIE.G","CDE",
                   "SL","SG","SR","CE","x.func","y.func","x.rich","y.rich","c.rich")
   if(sps.level){
     res <- list(pp,pp.list)
@@ -633,7 +633,7 @@ pairwise.price<-function(x,species='Species',func='Function'){
     
     # drops self-comparisons:
     res <- ungroup(res)
-    res <- res %>% filter((SRE.L!=0 | SRE.G!=0 | SCE.L!=0 | SCE.G!=0 | CDE!=0))
+    res <- res %>% filter((SRE.L!=0 | SRE.G!=0 | SIE.L!=0 | SIE.G!=0 | CDE!=0))
 
     return(res)
   }

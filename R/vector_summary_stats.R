@@ -207,7 +207,7 @@ test.partitions <- function(data, type='both', treat.var, control, standardize=T
   data <- as.data.frame(data)
   
   if(standardize){
-    comps <- c("SRE.L","SRE.G","SCE.L","SCE.G","CDE","SL","SG","SR","CE")
+    comps <- c("SRE.L","SRE.G","SIE.L","SIE.G","CDE","SL","SG","SR","CE")
     data[,comps] <- 100*data[,comps]/data$x.func                  # X function scaled
     data$y.func <- 100*(data$y.func - data$x.func)/data$x.func    # Y function scaled
     data$x.func <- 0                                    # X function set as baseline
@@ -243,8 +243,8 @@ test.partitions <- function(data, type='both', treat.var, control, standardize=T
                                         'SR','CE','Total')], id.vars = 'calcTrt')
          },
          price={
-           m2 <- reshape2::melt(data[,c('calcTrt','s.loss','s.gain','SRE.L','SCE.L','SRE.G',
-                                        'SCE.G','CDE','Total')], id.vars = 'calcTrt')
+           m2 <- reshape2::melt(data[,c('calcTrt','s.loss','s.gain','SRE.L','SIE.L','SRE.G',
+                                        'SIE.G','CDE','Total')], id.vars = 'calcTrt')
          },
          "Error! Invalid test type in test.partitions()"
   )

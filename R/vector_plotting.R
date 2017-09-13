@@ -40,7 +40,7 @@
 process.data.cafe<-function(data, group.vars=NULL, standardize=TRUE){
   
   if(standardize == TRUE){
-    comps <- c("SRE.L","SRE.G","SCE.L","SCE.G","CDE","SL","SG","SR","CE")
+    comps <- c("SRE.L","SRE.G","SIE.L","SIE.G","CDE","SL","SG","SR","CE")
     data[,comps] <- 100*data[,comps]/data$x.func                  # X function scaled
     data$y.func <- 100*(data$y.func - data$x.func)/data$x.func    # Y function scaled
     data$x.func <- 0 # X function set as baseline.
@@ -118,7 +118,7 @@ process.data.cafe<-function(data, group.vars=NULL, standardize=TRUE){
 process.data.bef<-function(data, group.vars=NULL, standardize=TRUE){
   
   if(standardize == TRUE){
-    comps <- c("SRE.L","SRE.G","SCE.L","SCE.G","CDE","SL","SG","SR","CE")
+    comps <- c("SRE.L","SRE.G","SIE.L","SIE.G","CDE","SL","SG","SR","CE")
     data[,comps] <- 100*data[,comps]/data$x.func                  # X function scaled
     data$y.func <- 100*(data$y.func - data$x.func)/data$x.func    # Y function scaled
     data$x.func <- 0     # X function set as baseline.
@@ -131,7 +131,7 @@ process.data.bef<-function(data, group.vars=NULL, standardize=TRUE){
   # BEF component
   # base = c(x.rich,x.func)
   # SR = c(x.rich,x.func + SRE.L + SRE.G)
-  # CE = c(y.rich,y.func) = c(y.rich, x.func + SRE.L + SRE.G + SCEs + CDE)
+  # CE = c(y.rich,y.func) = c(y.rich, x.func + SRE.L + SRE.G + SIEs + CDE)
   
   cols <- c(group.vars,'x.func','SR','y.func','x.rich','c.rich','y.rich')
   p2 <- reshape2::melt(data[,cols], id.vars=c(group.vars,'x.rich','c.rich','y.rich'))
@@ -195,39 +195,39 @@ process.data.price<-function(data,group.vars=NULL,standardize=TRUE){
   
   ### standardize
   if(standardize == TRUE){
-    comps <- c("SRE.L","SRE.G","SCE.L","SCE.G","CDE")
+    comps <- c("SRE.L","SRE.G","SIE.L","SIE.G","CDE")
     data[,comps] <- 100*data[,comps]/data$x.func                  # X function scaled
     data$y.func <- 100*(data$y.func - data$x.func)/data$x.func    # Y function scaled
     data$x.func <- 0     # X function set as baseline.
-    data$SCE.L <- data$SRE.L + data$SCE.L  # create net change vectors
-    data$SRE.G <- data$SCE.L + data$SRE.G
-    data$SCE.G <- data$SRE.G + data$SCE.G
+    data$SIE.L <- data$SRE.L + data$SIE.L  # create net change vectors
+    data$SRE.G <- data$SIE.L + data$SRE.G
+    data$SIE.G <- data$SRE.G + data$SIE.G
   } else{
     data$x.func <- data$x.func
     data$y.func <- data$y.func
     data$SRE.L <- data$x.func + data$SRE.L
-    data$SCE.L <- data$SRE.L + data$SCE.L
-    data$SRE.G <- data$SCE.L + data$SRE.G
-    data$SCE.G <- data$SRE.G + data$SCE.G
+    data$SIE.L <- data$SRE.L + data$SIE.L
+    data$SRE.G <- data$SIE.L + data$SRE.G
+    data$SIE.G <- data$SRE.G + data$SIE.G
   }
   
   # base = c(x.rich,x.func)
   # SRE.L = c(c.rich,0 + SRE.L)
-  # SCE.L = c(c.rich,0 + SRE.L + SCE.L = SL)
-  # SRE.G = c(y.rich,0 + SRE.L + SCE.L + SRE.G = SL + SRE.G)
-  # SCE.G = c(y.rich,0 + SRE.L + SCE.L + SRE.G + SCE.G = SL + SG)
+  # SIE.L = c(c.rich,0 + SRE.L + SIE.L = SL)
+  # SRE.G = c(y.rich,0 + SRE.L + SIE.L + SRE.G = SL + SRE.G)
+  # SIE.G = c(y.rich,0 + SRE.L + SIE.L + SRE.G + SIE.G = SL + SG)
   # CDE = c(y.rich,y.func)
   
-  cols <- c(group.vars,'x.func','SRE.L','SCE.L','SRE.G','SCE.G',
+  cols <- c(group.vars,'x.func','SRE.L','SIE.L','SRE.G','SIE.G',
                 'y.func','x.rich','c.rich','y.rich')
   p2 <- reshape2::melt(data[,cols], id.vars=c(group.vars,'x.rich','c.rich','y.rich'))
   
   # add richness column:
   p2$rich<-ifelse(p2$variable == "x.func", p2$x.rich,
                   ifelse(p2$variable == "SRE.L", p2$c.rich,
-                         ifelse(p2$variable == "SCE.L", p2$c.rich,
+                         ifelse(p2$variable == "SIE.L", p2$c.rich,
                                 ifelse(p2$variable == "SRE.G", p2$y.rich,
-                                       ifelse(p2$variable == "SCE.G", p2$y.rich,
+                                       ifelse(p2$variable == "SIE.G", p2$y.rich,
                                               ifelse(p2$variable == "y.func", p2$y.rich, NA)
                                               )
                                        )
@@ -256,28 +256,28 @@ process.data.price<-function(data,group.vars=NULL,standardize=TRUE){
   p4 <- p3b
 
   # Organize factor levels for plotting:
-  p2$variable <- factor(p2$variable, levels=c("x.func","SRE.L","SCE.L","SRE.G","SCE.G",
+  p2$variable <- factor(p2$variable, levels=c("x.func","SRE.L","SIE.L","SRE.G","SIE.G",
                                               "y.func"),
-                        labels=c("baseline","SRE.L","SCE.L","SRE.G","SCE.G","comparison"))
-  p3b$variable <- factor(p3b$variable, levels=c("x.func","SRE.L","SCE.L","SRE.G","SCE.G",
+                        labels=c("baseline","SRE.L","SIE.L","SRE.G","SIE.G","comparison"))
+  p3b$variable <- factor(p3b$variable, levels=c("x.func","SRE.L","SIE.L","SRE.G","SIE.G",
                                                 "y.func"),
-                        labels=c("baseline","SRE.L","SCE.L","SRE.G","SCE.G","comparison"))
+                        labels=c("baseline","SRE.L","SIE.L","SRE.G","SIE.G","comparison"))
   
   # updated code:
   p4$variable <- as.character(p4$variable)
-  p4$variable <- ifelse(p4$variable=="y.func","SCE.G",p4$variable)
-  p4$variable <- factor(p4$variable,levels=c("x.func","SRE.L","SCE.L","SRE.G","SCE.G"),
-                        labels=c("SRE.L vector","SCE.L vector","SRE.G vector","SCE.G vector","CDE vector"))
+  p4$variable <- ifelse(p4$variable=="y.func","SIE.G",p4$variable)
+  p4$variable <- factor(p4$variable,levels=c("x.func","SRE.L","SIE.L","SRE.G","SIE.G"),
+                        labels=c("SRE.L vector","SIE.L vector","SRE.G vector","SIE.G vector","CDE vector"))
   
-  p2$variable <- factor(p2$variable, levels=c("baseline","SRE.L","SCE.L","SRE.G","SCE.G",
-                                              "comparison","SRE.L vector","SCE.L vector",
-                                              "SRE.G vector","SCE.G vector","CDE vector"))
-  p3b$variable <- factor(p3b$variable, levels=c("baseline","SRE.L","SCE.L","SRE.G","SCE.G",
-                                               "comparison","SRE.L vector","SCE.L vector",
-                                               "SRE.G vector","SCE.G vector","CDE vector"))
-  p4$variable <- factor(p4$variable, levels=c("baseline","SRE.L","SCE.L","SRE.G","SCE.G",
-                                             "comparison","SRE.L vector","SCE.L vector",
-                                             "SRE.G vector","SCE.G vector","CDE vector"))
+  p2$variable <- factor(p2$variable, levels=c("baseline","SRE.L","SIE.L","SRE.G","SIE.G",
+                                              "comparison","SRE.L vector","SIE.L vector",
+                                              "SRE.G vector","SIE.G vector","CDE vector"))
+  p3b$variable <- factor(p3b$variable, levels=c("baseline","SRE.L","SIE.L","SRE.G","SIE.G",
+                                               "comparison","SRE.L vector","SIE.L vector",
+                                               "SRE.G vector","SIE.G vector","CDE vector"))
+  p4$variable <- factor(p4$variable, levels=c("baseline","SRE.L","SIE.L","SRE.G","SIE.G",
+                                             "comparison","SRE.L vector","SIE.L vector",
+                                             "SRE.G vector","SIE.G vector","CDE vector"))
   
   p3b <- p3b[p3b$variable != "baseline",]
   
@@ -769,8 +769,8 @@ leap.zig.price <- function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.ba
   # Trim out un-needed factor levels
   if(raw.points == FALSE & vectors == TRUE){
     tmp3$variable <- factor(as.character(tmp3$variable),
-                                levels=c("SRE.L vector","SCE.L vector","SRE.G vector",
-                                         "SCE.G vector","CDE vector"))
+                                levels=c("SRE.L vector","SIE.L vector","SRE.G vector",
+                                         "SIE.G vector","CDE vector"))
   }
   
   # Plot it:
