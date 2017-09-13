@@ -301,6 +301,7 @@ process.data.price<-function(data,group.vars=NULL,standardize=TRUE){
 #' 
 #' @examples
 #' 
+#' # Data setup
 #' data(cedarcreek)
 #' head(cedarcreek)
 #' 
@@ -311,39 +312,45 @@ process.data.price<-function(data,group.vars=NULL,standardize=TRUE){
 #' # (takes ~30 sec)
 #' pp<-pairwise.price(cc2,species='Species',func='Biomass')
 #' 
-#' # Organize/format the results, and pull out a subset using NTrt=1 as the control site
+#' # Organize/format the results, and pull out a subset using NAdd.x=0 as the control/baseline site
 #' pp<-group.columns(pp,gps=c('NTrt','NAdd'))
-#' pp<-pp[pp$NTrt.x==1,]
+#' pp<-pp[pp$NAdd.x=='0',]
 #' dat1<-pp[pp$NAdd %in% c('0 27.2'),]
 #' dat1.ctrl<-pp[pp$NAdd %in% c('0 0'),]
 #' 
-#' # Demonstrate vector plotting:
+#' # Demonstrate vector plotting for comparisons between the control level of N addition (0) and the highest level of N addition (27.2):
 #' leap.zig(dat1,type='cafe')
 #'
-#' # the plots returned are ggplot objects, so additional design specifications can be added on:
+#' # Or sets of vectors grouped by N addition level:
+#' leap.zig(pp,type='cafe',group.vars=c('NAdd.y'),raw.points=F,ylim=c(-100,700))
+#'
+#' # The plots returned are ggplot objects, so additional design specifications can be added on:
 #' leap.zig(dat1,type='cafe')+
 #'   ggtitle('Enrichment \n(0 vs. 27.2)')
 #' 
-#' # control plot window
+#' # Control plot window
 #' leap.zig(dat1,type='cafe',xlim=c(3,18),ylim=c(-100,700))
 #' 
-#' # turn on errorbars associated with vector endpoints
+#' # Turn on errorbars associated with vector endpoints
 #' leap.zig(dat1,type='cafe',xlim=c(3,18),ylim=c(-100,700),error.bars=T)
 #' 
-#' # turn on/off standardization of vector magnitude (taken as % change relative to baseline)
+#' # Turn on/off standardization of vector magnitude (taken as % change relative to baseline)
 #' leap.zig(dat1,type='cafe',standardize=F)
 #' 
-#' # make plot without showing individual points:
+#' # Make a plot without showing individual points:
 #' leap.zig(dat1,type='cafe',standardize=F,raw.points=F)
 #' 
 #' # Use other styles of vector arrangements:
 #' leap.zig(dat1,type='bef',standardize=F,raw.points=F)
 #' leap.zig(dat1,type='price',standardize=F,raw.points=F)
 #' 
-#' # turn legend off
+#' # BUSTED!
+#' # leap.zig(dat1,type='both')
+#' 
+#' # Turn legend off
 #' leap.zig(dat1,type='price',standardize=F,raw.points=F,legend=F)
 #' 
-#' # combine multiple plots in separate panels 
+#' # Combine multiple plots in separate panels 
 #' # (note: faceting currently doesn't work with leap.zig)
 #' s1 <- leap.zig(dat1,type='cafe', xlim=c(3,18),ylim=c(-100,700),
 #'                error.bars=T,vectors=T,raw.points = F,legend=F)
@@ -353,19 +360,19 @@ process.data.price<-function(data,group.vars=NULL,standardize=TRUE){
 #' library(gridExtra)
 #' grid.arrange(s1,s2,nrow=1)
 #' 
-#' # or on top of each other
-#' leap.zig(dat1,type='both', xlim=c(3,18),ylim=c(-100,700),
-#'                error.bars=F,vectors=T,raw.points = F,legend=T)
-#'                
-#'                add=T,old.plot=s1)
-#' 
+#' # Or on top of each other
 #' s1 <- leap.zig(dat1,type='cafe', xlim=c(3,18),ylim=c(-100,700),
 #'                error.bars=F,vectors=T,raw.points = F,legend=F)
 #' leap.zig(dat1.ctrl,type='cafe', xlim=c(3,18),ylim=c(-100,700),
 #'                error.bars=F,vectors=T,raw.points = F,legend=F,
 #'                add=T,old.plot=s1)
-
 #' 
+#' # BUSTED - due to conflicting color scales
+#' # s1 <- leap.zig(dat1,type='cafe', xlim=c(3,18),ylim=c(-100,700),
+#' #                error.bars=T,vectors=T,raw.points = F,legend=F)
+#' # leap.zig(dat1,type='bef', xlim=c(3,18),ylim=c(-100,700),
+#' #                error.bars=T,vectors=T,raw.points = F,legend=F,
+#' #                add=T,old.plot=s1)
 #' 
 #' @export
 leap.zig<-function(data, type="cafe", group.vars=NULL, standardize=TRUE, ...){
@@ -401,10 +408,10 @@ leap.zig<-function(data, type="cafe", group.vars=NULL, standardize=TRUE, ...){
 }
 
 
-#' Plot changes in ecosystem function using CAFE & BEF components.
+#' Internal functions for generating vector plots of ecosystem function components.
 #'
-#' This function is called by \code{\link{leap.zig()}} and produces vector plots 
-#' using BEF and CAFE components, overlaid on top of each other.
+#' This suite of functions is accessed by \code{\link{leap.zig()}} and produces vector plots 
+#' using BEF, CAFE, and Price components. \code{leap.zig.both} plots both the BEF and CAFE vectors.
 #'
 #' @param tmp   Data to plot
 #' @param xlim  Plot's x limits
@@ -421,12 +428,23 @@ leap.zig<-function(data, type="cafe", group.vars=NULL, standardize=TRUE, ...){
 #' 
 #' @examples
 #' 
-#' # write several
+#' # Load data and run pairwise comparisons  of communities
+#' cc2<-group_by(cedarcreek,NTrt,NAdd,Plot)
+#' pp<-pairwise.price(cc2,species='Species',func='Biomass')
+#' 
+#' # Organize/format the results, and pull out a subset using NTrt=1 as the control site
+#' pp<-group.columns(pp,gps=c('NTrt','NAdd'))
+#' pp<-pp[pp$NTrt.x==1,]
+#' dat1<-pp[pp$NAdd %in% c('0 27.2'),]
+#' 
+#' # Process and plot the result
+#' tmp <- process.data.bef(dat1, group.vars=NULL, standardize=F)
+#' leap.zig.bef(tmp, loc.standardize=F, group.vars=NULL,raw.points = F,legend = F)
 #'
 #' @export
 #' @import ggplot2
 leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE,
-                        raw.points=TRUE, vectors=TRUE,
+                        raw.points=TRUE, vectors=TRUE,group.vars=NULL,
                         legend=TRUE, old.plot=NA, add=FALSE){
 
   # Trim out un-needed factor levels
@@ -518,28 +536,7 @@ leap.zig.both<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
 }
 
 
-#' Plot changes in ecosystem function using BEF components.
-#'
-#' This function is called by \code{\link{leap.zig()}} and produces vector plots 
-#' using BEF components, overlaid on top of each other.
-#'
-#' @param tmp   Data to plot
-#' @param xlim  Plot's x limits
-#' @param ylim  Plot's y limits
-#' @param loc.standarize  Are these standardized vectors
-#' @param error.bars  Plot error bars
-#' @param raw.points  Plot raw data points at level of community pairs
-#' @param vectors     Plot averaged vectors
-#' @param legend      Show legend
-#' @param old.plot    ggplot object from previous \code{leap.zig()} call
-#' @param add         Add new plot to object provided in old.plot option
-#' 
-#' @return A ggplot object.
-#' 
-#' @examples
-#' 
-#' # write several
-#'
+#' @describeIn leap.zig.both Plot vectors for BEF components
 #' @export
 #' @import ggplot2
 leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE,
@@ -650,28 +647,7 @@ leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=F
 }
 
 
-#' Plot changes in ecosystem function using CAFE components.
-#'
-#' This function is called by \code{\link{leap.zig()}} and produces vector plots 
-#' using CAFE components, overlaid on top of each other.
-#'
-#' @param tmp   Data to plot
-#' @param xlim  Plot's x limits
-#' @param ylim  Plot's y limits
-#' @param loc.standarize  Are these standardized vectors
-#' @param error.bars  Plot error bars
-#' @param raw.points  Plot raw data points at level of community pairs
-#' @param vectors     Plot averaged vectors
-#' @param legend      Show legend
-#' @param old.plot    ggplot object from previous \code{leap.zig()} call
-#' @param add         Add new plot to object provided in old.plot option
-#' 
-#' @return A ggplot object.
-#' 
-#' @examples
-#' 
-#' # write several
-#'
+#' @describeIn leap.zig.both Plot vectors for CAFE components
 #' @export
 #' @import ggplot2
 leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE,
@@ -782,28 +758,7 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
 }
 
 
-#' Plot changes in ecosystem function using Price components.
-#'
-#' This function is called by \code{\link{leap.zig()}} and produces vector plots 
-#' using Price components, overlaid on top of each other.
-#'
-#' @param tmp   Data to plot
-#' @param xlim  Plot's x limits
-#' @param ylim  Plot's y limits
-#' @param loc.standarize  Are these standardized vectors
-#' @param error.bars  Plot error bars
-#' @param raw.points  Plot raw data points at level of community pairs
-#' @param vectors     Plot averaged vectors
-#' @param legend      Show legend
-#' @param old.plot    ggplot object from previous \code{leap.zig()} call
-#' @param add         Add new plot to object provided in old.plot option
-#' 
-#' @return A ggplot object.
-#' 
-#' @examples
-#' 
-#' # write several
-#'
+#' @describeIn leap.zig.both Plot vectors for Price components
 #' @export
 #' @import ggplot2
 leap.zig.price <- function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=FALSE, 
