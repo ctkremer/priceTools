@@ -623,8 +623,7 @@ leap.zig.bef<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=F
   lzp <- lzp + coord_cartesian(xlim=xlim.inner, ylim=ylim.inner)
   
   # Select color and label options:
-  lzp <- lzp + theme_bw() + theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank()) +
-               scale_x_continuous("Species richness", limits=xlim.outer)
+  lzp <- lzp + scale_x_continuous("Species richness", limits=xlim.outer)
   
   if(loc.standardize == TRUE){
     lzp <- lzp + scale_y_continuous("% change in EF vs. baseline", limits=ylim.outer) +
@@ -736,8 +735,7 @@ leap.zig.cafe<-function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.bars=
   lzp <- lzp + coord_cartesian(xlim=xlim.inner, ylim=ylim.inner)
   
   # Select color and label options:
-  lzp <- lzp + theme_bw() + theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank()) +
-                            scale_x_continuous("Species richness", limits=xlim.outer)
+  lzp <- lzp + scale_x_continuous("Species richness", limits=xlim.outer)
   
   if(loc.standardize == TRUE){
     lzp <- lzp + scale_y_continuous("% change in EF vs. baseline", limits=ylim.outer) +
@@ -851,9 +849,7 @@ leap.zig.price <- function(tmp, xlim=NA, ylim=NA, loc.standardize=TRUE, error.ba
   lzp <- lzp + coord_cartesian(xlim=xlim.inner, ylim=ylim.inner)
   
   # Select color and label options:
-  lzp <- lzp + theme_bw() + theme(panel.grid.major = element_blank(), 
-                                  panel.grid.minor = element_blank()) +
-                            scale_x_continuous("Species richness", limits=xlim.outer)
+  lzp <- lzp + scale_x_continuous("Species richness", limits=xlim.outer)
   
   if(loc.standardize == TRUE){
     lzp <- lzp + scale_y_continuous("% change in EF vs. baseline", limits=ylim.outer) +
