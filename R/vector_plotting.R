@@ -31,11 +31,9 @@
 #' pp<-pairwise.price(cms,species='species',func='func')
 #' pp<-group.columns(pp,gps=c('comm.id'))
 #' 
-#' processed<-process.data.cafe(data=pp,group.vars='comm.id')
-#' #processed
-#' 
-#' processed<-process.data.bef(data=pp,group.vars='comm.id')
-#' processed<-process.data.price(data=pp,group.vars='comm.id')
+#' process.data.cafe(data=pp,group.vars='comm.id')
+#' process.data.bef(data=pp,group.vars='comm.id')
+#' process.data.price(data=pp,group.vars='comm.id')
 #'    
 #' @export
 #' @import dplyr
