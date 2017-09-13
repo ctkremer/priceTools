@@ -68,6 +68,8 @@ cdr92D<-cdr92D[,c('Plot','NTrt','NAdd','Species','Biomass')]
 
 cedarcreek<-cdr92D
 
+cedarcreek<-cedarcreek[cedarcreek$NTrt!=9,]
+
 save(cedarcreek,file="/Users/colin/Research/Active/PricePartition/code/priceTools/data/cedarcreek.rda")
 
 
