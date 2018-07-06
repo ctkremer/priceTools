@@ -50,7 +50,7 @@ pairwise.jaccard<-function(x,species='Species',func='Function'){
   names(x)[which(names(x)==func)]<-"func"
   
   if(!(length(gps)>=1)){
-    print("ERROR! data provided to pairwise.price must have at least one identified 
+    print("ERROR! data provided to pairwise.jaccard must have at least one identified 
           grouping variable")
     break;
   }else{
