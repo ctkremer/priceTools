@@ -18,13 +18,13 @@ function, or if formatting independently, a data frame with the following column
 If \code{sps.level=FALSE}, a data frame of Price equation components.
    \item{SRE.L}{species richness effect (loss of species)}
    \item{SRE.G}{species richness effect (gain of species)}
-   \item{SCE.L}{species composition effect (loss of species)}
-   \item{SCE.G}{species composition effect (gain of species)}
+   \item{SIE.L}{species identity effect (loss of species)}
+   \item{SIE.G}{species identity effect (gain of species)}
    \item{CDE}{context dependent effect}
-   \item{SL}{sum of SRE.L and SCE.L}
-   \item{SG}{sum of SRE.G and SCE.G}
+   \item{SL}{sum of SRE.L and SIE.L}
+   \item{SG}{sum of SRE.G and SIE.G}
    \item{SR}{sum of SRE.L and SRE.G}
-   \item{CE}{sum of SCE.G, SCE.L, and CDE}
+   \item{CE}{sum of SIE.G, SIE.L, and CDE}
    \item{x.func}{Total function in community X}
    \item{y.func}{Total function in community Y}
    \item{x.rich}{Number of species in community X}
@@ -40,24 +40,24 @@ the Price equation partition comparing the communities.
 \details{
 Extra thoughts on how the interpret the Price equation partitions, which may get relocated into a vignette.
 
-Comments on SCE.L. If a species x' from x is lost in y, SCE.L will increase if x' 
-is less productive on average, and SCE.L will decrease if x' is more productive 
-than average. If a species x' from x is NOT lost in y, SCE.L will increase if x' 
-is more productive on average, and SCE.L will decrease if x' is less productive 
-than average. Overall, high/positive values of SCE.L mean that weak species were 
-lost and good species were retained. Noteably, SCE.L will not be affected by new
+Comments on SIE.L. If a species x' from x is lost in y, SIE.L will increase if x' 
+is less productive on average, and SIE.L will decrease if x' is more productive 
+than average. If a species x' from x is NOT lost in y, SIE.L will increase if x' 
+is more productive on average, and SIE.L will decrease if x' is less productive 
+than average. Overall, high/positive values of SIE.L mean that weak species were 
+lost and good species were retained. Noteably, SIE.L will not be affected by new
 species that y gains relative to what is shared or lost. Average species have 
-little effect on the value of SCE.L. If either barely any or almost all species 
+little effect on the value of SIE.L. If either barely any or almost all species 
 occur in common between communities x and y, then the few species that are kept 
-(or lost) will have a particularly large influence on the value of SCE.L. Overall, 
-SCE.L will probably be smaller in this case, and greatly affected by whether the
+(or lost) will have a particularly large influence on the value of SIE.L. Overall, 
+SIE.L will probably be smaller in this case, and greatly affected by whether the
 species lost/gained are more or less productive.
 
-Comments on SCE.G. A less productive than average species in y (-1) makes a negative
-contribution to SCE.G if it is NOT in community x, and a positive contribution to 
-SCE.G if it is in community x. A more productive than average species in y (+1) 
-makes a negative contribution to SCE.G if it is in x, and a positive contribution 
-to SCE.G if it does NOT occur in community x. A positive SCE.G occurs when less
+Comments on SIE.G. A less productive than average species in y (-1) makes a negative
+contribution to SIE.G if it is NOT in community x, and a positive contribution to 
+SIE.G if it is in community x. A more productive than average species in y (+1) 
+makes a negative contribution to SIE.G if it is in x, and a positive contribution 
+to SIE.G if it does NOT occur in community x. A positive SIE.G occurs when less
 productive than average members of y also occured in x, and more productive than
 average species in y do not occur in x.
 }
