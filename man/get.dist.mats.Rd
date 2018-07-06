@@ -7,7 +7,7 @@
 get.dist.mats(x)
 }
 \arguments{
-\item{x}{A data frame, resulting from FUNCTION}
+\item{x}{A data frame, resulting from \code{pairwise.price}}
 }
 \value{
 This function returns a list of two distance matrices:
